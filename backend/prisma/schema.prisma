@@ -8,8 +8,346 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Initial placeholder model for Phase 1 verification
-model HealthCheck {
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum Role {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  OUT_OF_STOCK
+}
+
+enum OrderStatus {
+  PLACED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  RAZORPAY
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+model Profile {
+  id             String   @id @default(uuid())
+  supabaseUserId String   @unique
+  name           String
+  email          String   @unique
+  role           Role     @default(CUSTOMER)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  vendorProfile VendorProfile?
+  addresses     Address[]
+  orders        Order[]
+  reviews       Review[]
+  couponUsages  CouponUsage[]
+
+  @@map("profiles")
+}
+
+model VendorProfile {
+  id             String       @id @default(uuid())
+  userId         String       @unique
+  storeName      String
+  storeSlug      String       @unique
+  description    String?
+  status         VendorStatus @default(PENDING)
+  commissionRate Decimal      @default(0.10) @db.Decimal(5, 4)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user       Profile        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products   Product[]
+  orderItems OrderItem[]
+  payouts    VendorPayout[]
+
+  @@map("vendor_profiles")
+}
+
+model Category {
   id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            String        @id @default(uuid())
+  vendorId      String
+  categoryId    String
+  name          String
+  slug          String        @unique
+  description   String        @db.Text
+  price         Decimal       @db.Decimal(10, 2)
+  stock         Int           @default(0)
+  status        ProductStatus @default(DRAFT)
+  averageRating Decimal       @default(0.0) @db.Decimal(3, 2)
+  reviewCount   Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  vendor     VendorProfile  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category   Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images     ProductImage[]
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@index([vendorId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([price])
+  @@index([averageRating])
+  @@index([name])
+  @@map("products")
+}
+
+model ProductImage {
+  id          String   @id @default(uuid())
+  productId   String
+  storagePath String
+  publicUrl   String
+  position    Int      @default(0)
+  altText     String?
+  createdAt   DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  userId     String
+  name       String
+  phone      String
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  postalCode String
+  country    String   @default("India")
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model Order {
+  id                 String           @id @default(uuid())
+  customerId         String
+  addressId          String?
+  status             OrderStatus      @default(PLACED)
+  subtotal           Decimal          @db.Decimal(10, 2)
+  discount           Decimal          @default(0.00) @db.Decimal(10, 2)
+  total              Decimal          @db.Decimal(10, 2)
+  platformCommission Decimal          @default(0.00) @db.Decimal(10, 2)
+  paymentStatus      PaymentStatus    @default(PENDING)
+  paymentProvider    PaymentProvider?
+  paymentReference   String?
+  invoiceUrl         String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  customer      Profile              @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  address       Address?             @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  items         OrderItem[]
+  payments      Payment[]
+  statusHistory OrderStatusHistory[]
+  couponUsages  CouponUsage[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String      @id @default(uuid())
+  orderId      String
+  productId    String
+  vendorId     String
+  quantity     Int
+  unitPrice    Decimal     @db.Decimal(10, 2)
+  subtotal     Decimal     @db.Decimal(10, 2)
+  vendorPayout Decimal     @db.Decimal(10, 2)
+  status       OrderStatus @default(PLACED)
+
+  order   Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
+  vendor  VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  review  Review?
+  payout  VendorPayout?
+
+  @@index([orderId])
+  @@index([vendorId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Payment {
+  id                 String          @id @default(uuid())
+  orderId            String
+  provider           PaymentProvider
+  providerPaymentId  String          @unique
+  amount             Decimal         @db.Decimal(10, 2)
+  platformCommission Decimal         @db.Decimal(10, 2)
+  status             PaymentStatus   @default(PENDING)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("payments")
+}
+
+model Review {
+  id          String       @id @default(uuid())
+  customerId  String
+  productId   String
+  orderItemId String       @unique
+  rating      Int
+  comment     String       @db.Text
+  status      ReviewStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  customer  Profile   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, orderItemId, productId])
+  @@index([productId])
+  @@index([customerId])
+  @@index([status])
+  @@map("reviews")
+}
+
+model Coupon {
+  id              String     @id @default(uuid())
+  code            String     @unique
+  type            CouponType
+  value           Decimal    @db.Decimal(10, 2)
+  minimumAmount   Decimal    @default(0.00) @db.Decimal(10, 2)
+  maximumDiscount Decimal?   @db.Decimal(10, 2)
+  usageLimit      Int?
+  usedCount       Int        @default(0)
+  startsAt        DateTime   @default(now())
+  expiresAt       DateTime
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  usages CouponUsage[]
+
+  @@map("coupons")
+}
+
+model CouponUsage {
+  id             String   @id @default(uuid())
+  couponId       String
+  customerId     String
+  orderId        String
+  discountAmount Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  coupon   Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  customer Profile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([customerId])
+  @@index([orderId])
+  @@map("coupon_usages")
+}
+
+model VendorPayout {
+  id               String       @id @default(uuid())
+  vendorId         String
+  orderItemId      String       @unique
+  amount           Decimal      @db.Decimal(10, 2)
+  providerPayoutId String?
+  status           PayoutStatus @default(PENDING)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  vendor    VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  orderItem OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([status])
+  @@map("vendor_payouts")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid())
+  orderId   String
+  status    OrderStatus
+  changedBy String
+  note      String?
+  createdAt DateTime    @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_status_history")
 }
