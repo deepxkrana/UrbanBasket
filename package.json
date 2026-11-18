@@ -1,0 +1,31 @@
+{
+  "name": "urbanbasket",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-Vendor E-Commerce Marketplace",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace=backend run dev",
+    "dev:frontend": "npm --workspace=frontend run dev",
+    "build:backend": "npm --workspace=backend run build",
+    "build:frontend": "npm --workspace=frontend run build",
+    "test:backend": "npm --workspace=backend test",
+    "test:frontend": "npm --workspace=frontend test",
+    "lint": "npm --workspace=frontend run lint && npm --workspace=backend run lint"
+  },
+  "keywords": [
+    "ecommerce",
+    "marketplace",
+    "multi-vendor",
+    "react",
+    "express",
+    "supabase",
+    "prisma",
+    "redis"
+  ],
+  "author": "",
+  "license": "ISC"
+}
