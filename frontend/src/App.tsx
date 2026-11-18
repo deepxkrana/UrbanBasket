@@ -3,11 +3,15 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import { AuthModal } from './components/auth/AuthModal';
 import { RoleGuard } from './components/auth/RoleGuard';
-import { CheckCircle2, ShieldCheck, Store, ShoppingBag, ArrowRight } from 'lucide-react';
+import { VendorOnboardModal } from './components/vendor/VendorOnboardModal';
+import { VendorProductsView } from './components/vendor/VendorProductsView';
+import { AdminApprovalsView } from './components/admin/AdminApprovalsView';
+import { CheckCircle2, Store, ShoppingBag, ArrowRight } from 'lucide-react';
 
 const MainView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('catalog');
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+  const [isOnboardOpen, setIsOnboardOpen] = useState<boolean>(false);
   const { profile } = useAuth();
 
   return (
@@ -19,9 +23,14 @@ const MainView: React.FC = () => {
       />
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <VendorOnboardModal
+        isOpen={isOnboardOpen}
+        onClose={() => setIsOnboardOpen(false)}
+        onSuccess={() => setActiveTab('vendor-dashboard')}
+      />
 
       <main className="max-w-6xl mx-auto px-6 py-10 flex-1 w-full">
-        {/* CATALOG VIEW */}
+        {/* CATALOG / HOME VIEW */}
         {activeTab === 'catalog' && (
           <div className="space-y-8 animate-in fade-in duration-200">
             {/* Hero Banner */}
@@ -29,13 +38,13 @@ const MainView: React.FC = () => {
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 mb-4">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Phase 3: Auth & RBAC Active
+                  Phase 4: Vendor Onboarding & Product CRUD Active
                 </div>
                 <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
                   Multi-Vendor Marketplace Infrastructure
                 </h1>
                 <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
-                  Experience seamless role-based authentication powered by Supabase Auth and Express RBAC guards. Switch between Customer, Vendor, and Admin roles instantly.
+                  Experience seamless multi-vendor commerce. Approved vendors can manage products, upload images, and control stock. Admins oversee store approvals and governance.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <button
@@ -45,11 +54,21 @@ const MainView: React.FC = () => {
                     <span>Switch Role / Test Accounts</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
+
+                  {profile?.role === 'CUSTOMER' && !profile.vendor && (
+                    <button
+                      onClick={() => setIsOnboardOpen(true)}
+                      className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold text-xs transition"
+                    >
+                      <Store className="w-3.5 h-3.5" />
+                      <span>Become a Vendor</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Role Demo Status Card */}
+            {/* Quick Navigation Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div
                 onClick={() => setActiveTab('catalog')}
@@ -62,12 +81,12 @@ const MainView: React.FC = () => {
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
                   <ShoppingBag className="w-5 h-5" />
                 </div>
-                <h3 className="font-bold text-white text-base mb-1">Customer Role</h3>
+                <h3 className="font-bold text-white text-base mb-1">Customer Experience</h3>
                 <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  Can browse products, manage cart items, apply discount coupons, and complete test-mode checkout.
+                  Browse verified merchant goods, manage cart, redeem promotional coupons, and place split orders.
                 </p>
                 <span className="text-[11px] font-semibold text-emerald-400">
-                  {profile?.role === 'CUSTOMER' ? '● Active Session' : 'Click to preview'}
+                  {profile?.role === 'CUSTOMER' ? '● Active Session' : 'Ready for Phase 5 Catalog'}
                 </span>
               </div>
 
@@ -82,12 +101,12 @@ const MainView: React.FC = () => {
                 <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4">
                   <Store className="w-5 h-5" />
                 </div>
-                <h3 className="font-bold text-white text-base mb-1">Vendor Role</h3>
+                <h3 className="font-bold text-white text-base mb-1">Vendor Store Management</h3>
                 <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  Manage store profile, add and publish inventory, manage product galleries, and fulfill store orders.
+                  Add products, set stock & pricing, manage image galleries, and track store inventory.
                 </p>
                 <span className="text-[11px] font-semibold text-teal-400">
-                  {profile?.role === 'VENDOR' ? '● Active Session' : 'Requires Vendor Access'}
+                  {profile?.role === 'VENDOR' ? '● Active Storefront' : 'Open Vendor Portal'}
                 </span>
               </div>
 
@@ -100,78 +119,37 @@ const MainView: React.FC = () => {
                 }`}
               >
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-5 h-5" />
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <h3 className="font-bold text-white text-base mb-1">Admin Role</h3>
+                <h3 className="font-bold text-white text-base mb-1">Admin Approvals & Governance</h3>
                 <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  Approve/reject vendor registrations, moderate customer reviews, manage coupon rules, and view platform metrics.
+                  Review applicant stores, grant publishing privileges, and manage marketplace commissions.
                 </p>
                 <span className="text-[11px] font-semibold text-purple-400">
-                  {profile?.role === 'ADMIN' ? '● Active Session' : 'Requires Admin Access'}
+                  {profile?.role === 'ADMIN' ? '● Active Admin' : 'Open Approvals Portal'}
                 </span>
               </div>
             </div>
           </div>
         )}
 
-        {/* VENDOR DASHBOARD VIEW (Protected) */}
-        {activeTab === 'vendor-dashboard' && (
+        {/* VENDOR DASHBOARD / PRODUCTS VIEW */}
+        {(activeTab === 'vendor-dashboard' || activeTab === 'vendor-products') && (
           <RoleGuard allowedRoles={['VENDOR', 'ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="p-6 rounded-2xl bg-slate-900 border border-teal-500/30">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white">Vendor Portal</h2>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Store:{' '}
-                      <span className="text-teal-400 font-semibold">
-                        {profile?.vendor?.storeName || 'TechNest Electronics'}
-                      </span>{' '}
-                      &bull; Status:{' '}
-                      <span className="text-emerald-400 font-medium">
-                        {profile?.vendor?.status || 'APPROVED'}
-                      </span>
-                    </p>
-                  </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                    Vendor Verified
-                  </span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Ready for Phase 4: Vendor Onboarding and Product CRUD workflows.
-                </p>
-              </div>
-            </div>
+            <VendorProductsView />
           </RoleGuard>
         )}
 
-        {/* ADMIN DASHBOARD VIEW (Protected) */}
-        {activeTab === 'admin-dashboard' && (
+        {/* ADMIN DASHBOARD / APPROVALS VIEW */}
+        {(activeTab === 'admin-dashboard' || activeTab === 'admin-approvals') && (
           <RoleGuard allowedRoles={['ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="p-6 rounded-2xl bg-slate-900 border border-purple-500/30">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white">Administrator Portal</h2>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Platform Governance & Vendor Approvals
-                    </p>
-                  </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    Admin Authority
-                  </span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Protected by Express `requireAdmin` middleware. Customers and standard vendors cannot access these endpoints.
-                </p>
-              </div>
-            </div>
+            <AdminApprovalsView />
           </RoleGuard>
         )}
       </main>
 
       <footer className="border-t border-slate-900 bg-slate-950 px-6 py-6 text-center text-xs text-slate-500">
-        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 3 Complete
+        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 4 Complete
       </footer>
     </div>
   );
