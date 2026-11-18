@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import healthRoutes from './health.routes';
+import authRoutes from './auth.routes';
 
 const router = Router();
 
@@ -9,7 +10,8 @@ router.use('/', healthRoutes);
 // V1 API Router
 const v1Router = Router();
 
-// Future Phase routes will be mounted here
+v1Router.use('/auth', authRoutes);
+
 v1Router.get('/', (_req, res) => {
   res.json({
     message: 'UrbanBasket API v1',
