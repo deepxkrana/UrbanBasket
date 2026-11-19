@@ -5,6 +5,10 @@ import vendorRoutes from './vendor.routes';
 import adminRoutes from './admin.routes';
 import categoryRoutes from './category.routes';
 import catalogRoutes from './catalog.routes';
+import cartRoutes from './cart.routes';
+import addressRoutes from './address.routes';
+import couponRoutes from './coupon.routes';
+import checkoutRoutes from './checkout.routes';
 
 const router = Router();
 
@@ -17,6 +21,10 @@ const v1Router = Router();
 v1Router.use('/auth', authRoutes);
 v1Router.use('/categories', categoryRoutes);
 v1Router.use('/products', catalogRoutes);
+v1Router.use('/cart', cartRoutes);
+v1Router.use('/addresses', addressRoutes);
+v1Router.use('/coupons', couponRoutes);
+v1Router.use('/checkout', checkoutRoutes);
 v1Router.use('/vendors', vendorRoutes);
 v1Router.use('/admin', adminRoutes);
 

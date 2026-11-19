@@ -1,6 +1,7 @@
 import React from 'react';
-import { ShoppingBag, Store, ShieldCheck, User, LogOut, LogIn } from 'lucide-react';
+import { ShoppingBag, Store, ShieldCheck, User, LogOut, LogIn, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 interface NavbarProps {
   onOpenAuth: () => void;
@@ -10,6 +11,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, activeTab, setActiveTab }) => {
   const { profile, signOut } = useAuth();
+  const { totalItems, setIsCartOpen } = useCart();
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md px-6 py-3.5">
@@ -50,14 +52,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, activeTab, setActive
             {(!profile || profile.role === 'CUSTOMER') && (
               <>
                 <button
-                  onClick={() => setActiveTab('cart')}
-                  className={`px-3 py-1.5 rounded-lg transition ${
-                    activeTab === 'cart'
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                  }`}
+                  onClick={() => setIsCartOpen(true)}
+                  className="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center space-x-1.5"
                 >
-                  Cart
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>Cart</span>
+                  {totalItems > 0 && (
+                    <span className="ml-1 px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-bold">
+                      {totalItems}
+                    </span>
+                  )}
                 </button>
                 {profile && (
                   <button
@@ -140,6 +144,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, activeTab, setActive
 
         {/* User / Auth Action Controls */}
         <div className="flex items-center space-x-3">
+          {/* Quick Cart Pill on Mobile */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 relative"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {totalItems > 0 && (
+              <span className="absolute top-1 right-1 px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-bold">
+                {totalItems}
+              </span>
+            )}
+          </button>
+
           {profile ? (
             <div className="flex items-center space-x-3">
               {/* Role Badge */}

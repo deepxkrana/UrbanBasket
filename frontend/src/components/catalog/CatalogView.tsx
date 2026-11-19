@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, Star, Store, Package, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProductDetailModal, DetailedProduct } from './ProductDetailModal';
+import { useCart } from '../../context/CartContext';
 
 interface Category {
   id: string;
@@ -44,6 +45,7 @@ interface PaginationMeta {
 }
 
 export const CatalogView: React.FC = () => {
+  const { addToCart } = useCart();
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta>({
@@ -148,8 +150,12 @@ export const CatalogView: React.FC = () => {
       <ProductDetailModal
         slug={selectedProductSlug}
         onClose={() => setSelectedProductSlug(null)}
-        onAddToCart={(p: DetailedProduct) => {
-          console.log('Product added to session cart:', p.name);
+        onAddToCart={async (p: DetailedProduct, quantity: number) => {
+          try {
+            await addToCart(p.id, quantity);
+          } catch (err) {
+            console.warn('Failed to add to cart:', err);
+          }
         }}
       />
 

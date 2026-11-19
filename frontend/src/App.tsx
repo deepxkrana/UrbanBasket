@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import { Navbar } from './components/layout/Navbar';
 import { AuthModal } from './components/auth/AuthModal';
 import { RoleGuard } from './components/auth/RoleGuard';
@@ -7,12 +8,15 @@ import { VendorOnboardModal } from './components/vendor/VendorOnboardModal';
 import { VendorProductsView } from './components/vendor/VendorProductsView';
 import { AdminApprovalsView } from './components/admin/AdminApprovalsView';
 import { CatalogView } from './components/catalog/CatalogView';
+import { CartDrawer } from './components/cart/CartDrawer';
+import { CheckoutModal } from './components/cart/CheckoutModal';
 import { CheckCircle2, Store, ArrowRight } from 'lucide-react';
 
 const MainView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('catalog');
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isOnboardOpen, setIsOnboardOpen] = useState<boolean>(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const { profile } = useAuth();
 
   return (
@@ -24,10 +28,24 @@ const MainView: React.FC = () => {
       />
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+
       <VendorOnboardModal
         isOpen={isOnboardOpen}
         onClose={() => setIsOnboardOpen(false)}
         onSuccess={() => setActiveTab('vendor-dashboard')}
+      />
+
+      <CartDrawer
+        onOpenCheckout={() => setIsCheckoutOpen(true)}
+        onOpenAuth={() => setIsAuthOpen(true)}
+      />
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        onOrderSuccess={(orderId) => {
+          console.log('Order placed successfully:', orderId);
+        }}
       />
 
       <main className="max-w-6xl mx-auto px-6 py-8 flex-1 w-full space-y-8">
@@ -37,13 +55,13 @@ const MainView: React.FC = () => {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 mb-3">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Phase 5: Marketplace Catalog & Search Active
+                Phase 6: Redis Cart & Multi-Vendor Checkout Active
               </div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-                Explore Verified Merchant Goods
+                Shop Verified Multi-Vendor Goods
               </h1>
               <p className="text-slate-300 text-xs md:text-sm leading-relaxed mb-6">
-                Browse our multi-vendor marketplace catalog with instant keyword search, department filters, price range sliders, and Redis caching.
+                Add products from multiple merchants to your persistent Redis cart. Apply discount coupons (`WELCOME10`, `FLAT25`) and generate atomic pre-orders with split commission calculations.
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -87,7 +105,7 @@ const MainView: React.FC = () => {
       </main>
 
       <footer className="border-t border-slate-900 bg-slate-950 px-6 py-6 text-center text-xs text-slate-500">
-        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 5 Complete
+        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 6 Complete
       </footer>
     </div>
   );
@@ -96,7 +114,9 @@ const MainView: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <MainView />
+      <CartProvider>
+        <MainView />
+      </CartProvider>
     </AuthProvider>
   );
 };
