@@ -9,8 +9,11 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
+  FileText,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { ReviewModal } from '../reviews/ReviewModal';
 
 interface OrderItem {
   id: string;
@@ -55,8 +58,39 @@ export const CustomerOrdersView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{
+    orderItemId: string;
+    productName: string;
+    productImage?: string | null;
+  } | null>(null);
 
   const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+  const handleDownloadInvoice = async (orderId: string) => {
+    setDownloadingInvoice(orderId);
+    try {
+      const res = await fetch(`${getApiUrl()}/orders/${orderId}/invoice`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        throw new Error('Failed to download tax invoice');
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `UrbanBasket-Invoice-${orderId.slice(0, 8)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error downloading invoice');
+    } finally {
+      setDownloadingInvoice(null);
+    }
+  };
 
   const fetchOrders = async () => {
     if (!token) return;
@@ -305,8 +339,25 @@ export const CustomerOrdersView: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right flex-shrink-0 font-medium text-slate-200">
-                        ${item.subtotal.toFixed(2)}
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        {order.status === 'DELIVERED' && (
+                          <button
+                            onClick={() =>
+                              setReviewTarget({
+                                orderItemId: item.id,
+                                productName: item.productName,
+                                productImage: item.image,
+                              })
+                            }
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-[11px] font-semibold transition"
+                          >
+                            <Star className="w-3 h-3 fill-amber-400" />
+                            <span>Review</span>
+                          </button>
+                        )}
+                        <div className="text-right font-medium text-slate-200">
+                          ${item.subtotal.toFixed(2)}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -344,6 +395,16 @@ export const CustomerOrdersView: React.FC = () => {
                         Cancel Order
                       </button>
                     )}
+
+                    <button
+                      onClick={() => handleDownloadInvoice(order.id)}
+                      disabled={downloadingInvoice === order.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition shadow-sm"
+                      title="Download Tax Invoice (PDF)"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{downloadingInvoice === order.id ? 'Generating...' : 'Invoice'}</span>
+                    </button>
 
                     <button
                       onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
@@ -397,6 +458,19 @@ export const CustomerOrdersView: React.FC = () => {
             );
           })}
         </div>
+      )}
+
+      {reviewTarget && (
+        <ReviewModal
+          isOpen={true}
+          onClose={() => setReviewTarget(null)}
+          orderItemId={reviewTarget.orderItemId}
+          productName={reviewTarget.productName}
+          productImage={reviewTarget.productImage}
+          onReviewSubmitted={() => {
+            fetchOrders();
+          }}
+        />
       )}
     </div>
   );

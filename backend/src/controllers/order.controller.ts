@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
+import { InvoiceService } from '../services/invoice.service';
 import {
   OrderStatus,
   PaymentStatus,
@@ -201,6 +202,27 @@ export const getOrderById = async (
         })),
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Download authorized PDF tax invoice for order
+ * ACCEPTANCE CRITERIA: Invoice URLs and access are protected.
+ */
+export const getOrderInvoice = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new AppError('Authentication required.', 401, 'UNAUTHORIZED');
+    }
+
+    const { id } = req.params;
+    await InvoiceService.generateOrderInvoice(id, req.user.id, req.user.role, res);
   } catch (err) {
     next(err);
   }
