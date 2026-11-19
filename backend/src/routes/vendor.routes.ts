@@ -10,6 +10,10 @@ import {
   addProductImage,
   deleteProductImage,
 } from '../controllers/vendor.controller';
+import {
+  getVendorOrders,
+  updateVendorOrderStatus,
+} from '../controllers/order.controller';
 import { authenticate } from '../middleware/auth';
 import { requireVendor, requireProductOwnership } from '../middleware/roleGuard';
 
@@ -24,6 +28,10 @@ router.post('/onboard', onboardVendor);
 // Store Management: Restricted to VENDOR and ADMIN
 router.get('/me', requireVendor, getVendorMe);
 router.patch('/me', requireVendor, updateVendorMe);
+
+// Vendor Order Fulfillment & Lifecycle Management
+router.get('/me/orders', requireVendor, getVendorOrders);
+router.patch('/me/orders/:id/status', requireVendor, updateVendorOrderStatus);
 
 // Product Catalog CRUD: Restricted to VENDOR and ADMIN
 router.get('/me/products', requireVendor, getVendorProducts);

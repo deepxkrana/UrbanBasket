@@ -10,6 +10,8 @@ import { AdminApprovalsView } from './components/admin/AdminApprovalsView';
 import { CatalogView } from './components/catalog/CatalogView';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { CheckoutModal } from './components/cart/CheckoutModal';
+import { CustomerOrdersView } from './components/orders/CustomerOrdersView';
+import { VendorOrdersView } from './components/vendor/VendorOrdersView';
 import { CheckCircle2, Store, ArrowRight } from 'lucide-react';
 
 const MainView: React.FC = () => {
@@ -55,13 +57,13 @@ const MainView: React.FC = () => {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 mb-3">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Phase 6: Redis Cart & Multi-Vendor Checkout Active
+                Phase 7: Payments, Webhooks & Order Lifecycle Active
               </div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
                 Shop Verified Multi-Vendor Goods
               </h1>
               <p className="text-slate-300 text-xs md:text-sm leading-relaxed mb-6">
-                Add products from multiple merchants to your persistent Redis cart. Apply discount coupons (`WELCOME10`, `FLAT25`) and generate atomic pre-orders with split commission calculations.
+                Atomic checkout with test Stripe / Razorpay payments, signed webhooks, split commission payouts, and step-by-step merchant order fulfillment.
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -89,10 +91,24 @@ const MainView: React.FC = () => {
         {/* CATALOG VIEW */}
         {activeTab === 'catalog' && <CatalogView />}
 
+        {/* CUSTOMER ORDERS VIEW */}
+        {activeTab === 'orders' && (
+          <RoleGuard allowedRoles={['CUSTOMER', 'VENDOR', 'ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
+            <CustomerOrdersView />
+          </RoleGuard>
+        )}
+
         {/* VENDOR DASHBOARD / PRODUCTS VIEW */}
         {(activeTab === 'vendor-dashboard' || activeTab === 'vendor-products') && (
           <RoleGuard allowedRoles={['VENDOR', 'ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
             <VendorProductsView />
+          </RoleGuard>
+        )}
+
+        {/* VENDOR ORDERS FULFILLMENT VIEW */}
+        {activeTab === 'vendor-orders' && (
+          <RoleGuard allowedRoles={['VENDOR', 'ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
+            <VendorOrdersView />
           </RoleGuard>
         )}
 
@@ -105,7 +121,7 @@ const MainView: React.FC = () => {
       </main>
 
       <footer className="border-t border-slate-900 bg-slate-950 px-6 py-6 text-center text-xs text-slate-500">
-        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 6 Complete
+        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 7 Payments & Order Lifecycle Complete
       </footer>
     </div>
   );

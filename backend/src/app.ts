@@ -16,7 +16,13 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 
 if (env.NODE_ENV !== 'test') {

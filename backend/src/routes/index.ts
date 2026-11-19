@@ -9,6 +9,8 @@ import cartRoutes from './cart.routes';
 import addressRoutes from './address.routes';
 import couponRoutes from './coupon.routes';
 import checkoutRoutes from './checkout.routes';
+import paymentRoutes from './payment.routes';
+import orderRoutes from './order.routes';
 
 const router = Router();
 
@@ -25,6 +27,8 @@ v1Router.use('/cart', cartRoutes);
 v1Router.use('/addresses', addressRoutes);
 v1Router.use('/coupons', couponRoutes);
 v1Router.use('/checkout', checkoutRoutes);
+v1Router.use('/payments', paymentRoutes);
+v1Router.use('/orders', orderRoutes);
 v1Router.use('/vendors', vendorRoutes);
 v1Router.use('/admin', adminRoutes);
 

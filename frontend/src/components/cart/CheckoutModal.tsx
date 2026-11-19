@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, MapPin, CheckCircle2, ShieldCheck, Plus, Sparkles, Store, ShoppingBag } from 'lucide-react';
+import { X, MapPin, CheckCircle2, ShieldCheck, Plus, Sparkles, Store, ShoppingBag, CreditCard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -47,6 +47,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
 
   const [loading, setLoading] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null);
 
@@ -56,9 +58,39 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
     if (isOpen && token) {
       fetchAddresses();
       setConfirmation(null);
+      setPaymentSuccess(false);
       setError(null);
     }
   }, [isOpen, token]);
+
+  const handleSimulatePayment = async () => {
+    if (!confirmation) return;
+    setPaymentProcessing(true);
+    setError(null);
+    try {
+      const res = await fetch(`${getApiUrl()}/payments/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          orderId: confirmation.orderId,
+          status: 'COMPLETED',
+          providerPaymentId: `test_pay_${Date.now()}`,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error?.message || 'Payment simulation failed');
+      }
+      setPaymentSuccess(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error processing test payment');
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
 
   const fetchAddresses = async () => {
     setLoading(true);
@@ -172,12 +204,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
         </button>
 
         {confirmation ? (
-          <div className="py-8 text-center space-y-4 animate-in fade-in">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/10">
+          <div className="py-6 text-center space-y-4 animate-in fade-in">
+            <div className={`w-16 h-16 rounded-3xl mx-auto flex items-center justify-center shadow-lg transition ${
+              paymentSuccess
+                ? 'bg-emerald-500/10 text-emerald-400 shadow-emerald-500/10'
+                : 'bg-amber-500/10 text-amber-400 shadow-amber-500/10'
+            }`}>
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            <h2 className="text-2xl font-black text-white">Order Placed Successfully!</h2>
+            <h2 className="text-2xl font-black text-white">
+              {paymentSuccess ? 'Payment Confirmed & Settled!' : 'Order Placed (Payment Pending)'}
+            </h2>
+
             <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 max-w-md mx-auto text-left space-y-2 font-mono text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500">Order Reference:</span>
@@ -186,6 +225,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
               <div className="flex justify-between">
                 <span className="text-slate-500">Lifecycle Status:</span>
                 <span className="text-slate-200 uppercase font-semibold">{confirmation.status}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Payment Status:</span>
+                <span className={`font-semibold ${paymentSuccess ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {paymentSuccess ? 'COMPLETED (PAID)' : 'PENDING SETTLEMENT'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Total Items:</span>
@@ -197,16 +242,45 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Your order has been recorded in PostgreSQL and reserved for merchant fulfillment. Ready for Phase 7 test payment processing!
-            </p>
+            {error && (
+              <p className="text-xs text-rose-400 max-w-sm mx-auto">{error}</p>
+            )}
 
-            <button
-              onClick={onClose}
-              className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20"
-            >
-              Continue Shopping
-            </button>
+            {!paymentSuccess ? (
+              <div className="space-y-3 pt-2">
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Simulate instant test payment with Stripe / Razorpay webhook to decrement stock and initialize vendor commission payouts.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    onClick={handleSimulatePayment}
+                    disabled={paymentProcessing}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>{paymentProcessing ? 'Processing Payment...' : 'Simulate Card Payment (Test Mode)'}</span>
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition"
+                  >
+                    Pay Later
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 pt-2">
+                <p className="text-xs text-emerald-400 font-medium">
+                  ✓ Inventory updated atomically. Split commission payouts allocated for merchants.
+                </p>
+                <button
+                  onClick={onClose}
+                  className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider transition"
+                >
+                  Close & View Catalog
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
