@@ -9,6 +9,7 @@ import {
   deleteProduct,
   addProductImage,
   deleteProductImage,
+  getVendorAnalytics,
 } from '../controllers/vendor.controller';
 import {
   getVendorOrders,
@@ -28,6 +29,7 @@ router.post('/onboard', onboardVendor);
 // Store Management: Restricted to VENDOR and ADMIN
 router.get('/me', requireVendor, getVendorMe);
 router.patch('/me', requireVendor, updateVendorMe);
+router.get('/me/analytics', requireVendor, getVendorAnalytics);
 
 // Vendor Order Fulfillment & Lifecycle Management
 router.get('/me/orders', requireVendor, getVendorOrders);

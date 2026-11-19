@@ -3,6 +3,7 @@ import {
   getAdminVendors,
   updateVendorStatus,
   updateUserRole,
+  getAdminAnalytics,
 } from '../controllers/admin.controller';
 import {
   getAdminReviews,
@@ -37,5 +38,8 @@ router.get('/coupons', getAdminCoupons);
 router.post('/coupons', createAdminCoupon);
 router.patch('/coupons/:id', updateAdminCoupon);
 router.delete('/coupons/:id', deleteAdminCoupon);
+
+// Platform Analytics & Metrics
+router.get('/analytics', getAdminAnalytics);
 
 export default router;

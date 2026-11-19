@@ -4,7 +4,7 @@ import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
 import { RedisService } from '../services/redis.service';
 import { StorageService } from '../services/storage.service';
-import { VendorStatus, ProductStatus, Role, Prisma } from '@prisma/client';
+import { VendorStatus, ProductStatus, Role, Prisma, PaymentStatus } from '@prisma/client';
 
 const onboardSchema = z.object({
   storeName: z.string().min(3, 'Store name must be at least 3 characters').max(50),
@@ -429,6 +429,100 @@ export const deleteProductImage = async (
     res.status(200).json({
       success: true,
       message: 'Product image removed successfully.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Store sales and payout analytics for Vendor Dashboard
+ */
+export const getVendorAnalytics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new AppError('Authentication required.', 401, 'UNAUTHORIZED');
+    }
+
+    const vendor = await prisma.vendorProfile.findUnique({
+      where: { userId: req.user.id },
+    });
+
+    if (!vendor) {
+      throw new AppError('Vendor profile not found.', 404, 'NOT_FOUND');
+    }
+
+    // Completed order items for this vendor
+    const items = await prisma.orderItem.findMany({
+      where: {
+        vendorId: vendor.id,
+        order: { paymentStatus: PaymentStatus.COMPLETED },
+      },
+      include: {
+        product: { select: { id: true, name: true, slug: true } },
+      },
+    });
+
+    const totalRevenue = items.reduce((sum, i) => sum + Number(i.subtotal), 0);
+    const netPayout = items.reduce((sum, i) => sum + Number(i.vendorPayout), 0);
+    const platformCommissionPaid = totalRevenue - netPayout;
+    const totalItemsSold = items.reduce((sum, i) => sum + i.quantity, 0);
+
+    // Order status distribution
+    const statusCounts: Record<string, number> = {
+      PLACED: 0,
+      PACKED: 0,
+      SHIPPED: 0,
+      DELIVERED: 0,
+      CANCELLED: 0,
+    };
+
+    const allVendorItems = await prisma.orderItem.findMany({
+      where: { vendorId: vendor.id },
+      select: { status: true },
+    });
+
+    allVendorItems.forEach((i) => {
+      statusCounts[i.status] = (statusCounts[i.status] || 0) + 1;
+    });
+
+    // Top products
+    const productSalesMap: Record<string, { name: string; slug: string; units: number; revenue: number }> = {};
+    items.forEach((item) => {
+      if (!productSalesMap[item.productId]) {
+        productSalesMap[item.productId] = {
+          name: item.product.name,
+          slug: item.product.slug,
+          units: 0,
+          revenue: 0,
+        };
+      }
+      productSalesMap[item.productId].units += item.quantity;
+      productSalesMap[item.productId].revenue += Number(item.subtotal);
+    });
+
+    const topProducts = Object.values(productSalesMap)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        storeName: vendor.storeName,
+        commissionRate: Number(vendor.commissionRate),
+        financials: {
+          totalRevenue: Number(totalRevenue.toFixed(2)),
+          netPayout: Number(netPayout.toFixed(2)),
+          platformCommissionPaid: Number(platformCommissionPaid.toFixed(2)),
+          totalItemsSold,
+        },
+        ordersByStatus: statusCounts,
+        topProducts,
+      },
     });
   } catch (err) {
     next(err);

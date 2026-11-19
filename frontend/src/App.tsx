@@ -7,6 +7,7 @@ import { RoleGuard } from './components/auth/RoleGuard';
 import { VendorOnboardModal } from './components/vendor/VendorOnboardModal';
 import { VendorProductsView } from './components/vendor/VendorProductsView';
 import { AdminApprovalsView } from './components/admin/AdminApprovalsView';
+import { AdminAnalyticsView } from './components/admin/AdminAnalyticsView';
 import { CatalogView } from './components/catalog/CatalogView';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { CheckoutModal } from './components/cart/CheckoutModal';
@@ -112,8 +113,15 @@ const MainView: React.FC = () => {
           </RoleGuard>
         )}
 
-        {/* ADMIN DASHBOARD / APPROVALS VIEW */}
-        {(activeTab === 'admin-dashboard' || activeTab === 'admin-approvals') && (
+        {/* ADMIN ANALYTICS DASHBOARD */}
+        {activeTab === 'admin-dashboard' && (
+          <RoleGuard allowedRoles={['ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
+            <AdminAnalyticsView />
+          </RoleGuard>
+        )}
+
+        {/* ADMIN GOVERNANCE & APPROVALS VIEW */}
+        {activeTab === 'admin-approvals' && (
           <RoleGuard allowedRoles={['ADMIN']} onOpenAuth={() => setIsAuthOpen(true)}>
             <AdminApprovalsView />
           </RoleGuard>
@@ -121,7 +129,7 @@ const MainView: React.FC = () => {
       </main>
 
       <footer className="border-t border-slate-900 bg-slate-950 px-6 py-6 text-center text-xs text-slate-500">
-        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 7 Payments & Order Lifecycle Complete
+        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 9 Real-Time Analytics & Monitoring Active
       </footer>
     </div>
   );

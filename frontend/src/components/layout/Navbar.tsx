@@ -121,21 +121,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, activeTab, setActive
                   onClick={() => setActiveTab('admin-dashboard')}
                   className={`px-3 py-1.5 rounded-lg transition ${
                     activeTab === 'admin-dashboard'
-                      ? 'bg-slate-800 text-purple-400'
+                      ? 'bg-slate-800 text-purple-400 font-bold'
                       : 'text-slate-400 hover:text-purple-300 hover:bg-slate-900'
                   }`}
                 >
-                  Admin Portal
+                  Analytics
                 </button>
                 <button
                   onClick={() => setActiveTab('admin-approvals')}
                   className={`px-3 py-1.5 rounded-lg transition ${
                     activeTab === 'admin-approvals'
-                      ? 'bg-slate-800 text-purple-400'
+                      ? 'bg-slate-800 text-purple-400 font-bold'
                       : 'text-slate-400 hover:text-purple-300 hover:bg-slate-900'
                   }`}
                 >
-                  Vendor Approvals
+                  Governance
                 </button>
               </>
             )}
