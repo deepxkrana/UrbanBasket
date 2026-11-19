@@ -15,6 +15,7 @@
     "seed:backend": "npm --workspace=backend run seed",
     "test:backend": "npm --workspace=backend test",
     "test:frontend": "npm --workspace=frontend test",
+    "test:load": "npm --workspace=backend run test:load",
     "lint": "npm --workspace=frontend run lint && npm --workspace=backend run lint"
   },
   "keywords": [

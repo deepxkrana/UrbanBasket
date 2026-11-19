@@ -1,0 +1,538 @@
+{
+  "info": {
+    "_postman_id": "c1f8872e-06bb-498c-8c0c-urbanbasket-v1",
+    "name": "UrbanBasket API Collection",
+    "description": "Comprehensive Postman collection for UrbanBasket multi-vendor marketplace, covering Customers, Vendors, and Administrators.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "customerToken",
+      "value": "demo-token-customer",
+      "type": "string"
+    },
+    {
+      "key": "vendorToken",
+      "value": "demo-token-vendor",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "demo-token-admin",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & System",
+      "item": [
+        {
+          "name": "System Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"fullName\": \"Jane Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@urbanbasket.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Current Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Vendor Onboarding Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeName\": \"Artisan Crafts\",\n  \"storeDescription\": \"Handmade organic woodcrafts and decor\",\n  \"businessEmail\": \"contact@artisancrafts.com\",\n  \"phone\": \"+1-555-0199\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/vendor-apply",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "vendor-apply"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog & Products",
+      "item": [
+        {
+          "name": "List Public Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products?category=electronics&sort=price&order=asc&page=1&limit=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                { "key": "category", "value": "electronics" },
+                { "key": "sort", "value": "price" },
+                { "key": "order", "value": "asc" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "12" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/prod-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "prod-001"]
+            }
+          }
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart (Redis)",
+      "item": [
+        {
+          "name": "Get Current Cart",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart"]
+            }
+          }
+        },
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"prod-001\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart"]
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/prod-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "prod-001"]
+            }
+          }
+        },
+        {
+          "name": "Remove Item from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/prod-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "prod-001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout & Payments",
+      "item": [
+        {
+          "name": "Validate Coupon Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WELCOME10\",\n  \"subtotal\": 100.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checkout/apply-coupon",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checkout", "apply-coupon"]
+            }
+          }
+        },
+        {
+          "name": "Create Order from Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": {\n    \"name\": \"Jane Customer\",\n    \"street\": \"123 Market St, Suite 4B\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"postalCode\": \"94103\",\n    \"country\": \"USA\"\n  },\n  \"couponCode\": \"WELCOME10\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checkout/create-order",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checkout", "create-order"]
+            }
+          }
+        },
+        {
+          "name": "Create Payment Intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"ord-123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/create-intent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "create-intent"]
+            }
+          }
+        },
+        {
+          "name": "Verify / Settle Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"ord-123\",\n  \"paymentIntentId\": \"pi_test_12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer Orders, Reviews & Invoices",
+      "item": [
+        {
+          "name": "List My Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Download PDF Invoice",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/ord-123/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "ord-123", "invoice"]
+            }
+          }
+        },
+        {
+          "name": "Submit Verified Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderItemId\": \"item-123\",\n  \"rating\": 5,\n  \"comment\": \"Exceptional quality, super fast delivery and great battery life!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendor Portal",
+      "item": [
+        {
+          "name": "Get Vendor Store Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{vendorToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/me/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "me", "profile"]
+            }
+          }
+        },
+        {
+          "name": "List Vendor Catalog",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{vendorToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/me/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "me", "products"]
+            }
+          }
+        },
+        {
+          "name": "Create Vendor Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendorToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ergonomic Wireless Mouse\",\n  \"description\": \"Rechargeable vertical ergonomic optical mouse\",\n  \"price\": 49.99,\n  \"stock\": 50,\n  \"categoryId\": \"cat-1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/me/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "me", "products"]
+            }
+          }
+        },
+        {
+          "name": "List Vendor Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{vendorToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/me/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "me", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Item Fulfillment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendorToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SHIPPED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/me/orders/item-123/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "me", "orders", "item-123", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor Sales Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{vendorToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/me/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "me", "analytics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Portal",
+      "item": [
+        {
+          "name": "List Pending & Approved Vendors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/vendors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "vendors"]
+            }
+          }
+        },
+        {
+          "name": "Update Vendor Approval Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"commissionRate\": 0.12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/vendors/vend-123/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "vendors", "vend-123", "status"]
+            }
+          }
+        },
+        {
+          "name": "Manage Coupons",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"FLASH20\",\n  \"discountPercentage\": 20,\n  \"minOrderAmount\": 50,\n  \"maxDiscount\": 30,\n  \"validUntil\": \"2026-12-31T23:59:59.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "coupons"]
+            }
+          }
+        },
+        {
+          "name": "Moderate Customer Review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/reviews/rev-123/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "reviews", "rev-123", "status"]
+            }
+          }
+        },
+        {
+          "name": "Platform Analytics & Revenue Ledger",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "analytics"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

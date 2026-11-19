@@ -14,7 +14,8 @@
     "seed": "tsx prisma/seed.ts",
     "lint": "eslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:load": "tsx scripts/load-test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
