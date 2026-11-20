@@ -16,8 +16,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, activeTab, setActive
   return (
     <div className="sticky top-0 z-40">
       {/* Top Announcement Bar */}
-      <div className="bg-[#171717] text-white text-[11px] py-1.5 px-6 font-normal tracking-wide">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <div className="bg-[#171717] text-white text-[11px] py-1.5 px-4 sm:px-6 lg:px-8 font-normal tracking-wide">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="hidden sm:block text-neutral-400">
             Handcrafted goods & electronics from verified independent merchants
           </div>
@@ -34,8 +34,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, activeTab, setActive
       </div>
 
       {/* Main Navbar */}
-      <header className="border-b border-[#e5e7eb] bg-white/95 backdrop-blur-md px-6 py-3.5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <header className="border-b border-[#e5e7eb] bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           {/* Brand */}
           <div className="flex items-center space-x-8">
             <button

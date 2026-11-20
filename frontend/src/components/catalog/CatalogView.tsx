@@ -2,38 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, Star, Store, Package, RotateCcw, ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react';
 import { ProductDetailModal, DetailedProduct } from './ProductDetailModal';
 import { useCart } from '../../context/CartContext';
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface ProductItem {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  price: string | number;
-  stock: number;
-  averageRating: string | number;
-  reviewCount: number;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  vendor: {
-    id: string;
-    storeName: string;
-    storeSlug: string;
-  };
-  images: {
-    id: string;
-    publicUrl: string;
-    altText?: string;
-  }[];
-}
+import { FALLBACK_CATEGORIES, FALLBACK_PRODUCTS, Category, ProductItem } from '../../data/mockProducts';
 
 interface PaginationMeta {
   total: number;
@@ -46,12 +15,12 @@ interface PaginationMeta {
 
 export const CatalogView: React.FC = () => {
   const { addToCart } = useCart();
-  const [products, setProducts] = useState<ProductItem[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<ProductItem[]>(FALLBACK_PRODUCTS);
+  const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
   const [pagination, setPagination] = useState<PaginationMeta>({
-    total: 0,
+    total: FALLBACK_PRODUCTS.length,
     page: 1,
-    pageSize: 12,
+    pageSize: 24,
     totalPages: 1,
     hasNext: false,
     hasPrev: false,
@@ -87,11 +56,14 @@ export const CatalogView: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/categories`);
       const json = await res.json();
-      if (json.success) {
+      if (json.success && json.data && json.data.length > 0) {
         setCategories(json.data);
+      } else {
+        setCategories(FALLBACK_CATEGORIES);
       }
     } catch (err) {
-      console.warn('Failed to fetch categories:', err);
+      console.warn('Failed to fetch categories, using curated fallback:', err);
+      setCategories(FALLBACK_CATEGORIES);
     }
   };
 
@@ -110,19 +82,35 @@ export const CatalogView: React.FC = () => {
       params.append('sort', sortField);
       params.append('order', sortOrder);
       params.append('page', page.toString());
-      params.append('pageSize', '12');
+      params.append('pageSize', '24');
 
       const res = await fetch(`${apiUrl}/products?${params.toString()}`);
       const json = await res.json();
 
-      if (json.success) {
+      if (json.success && json.data && json.data.length > 0) {
         setProducts(json.data);
         if (json.pagination) {
           setPagination(json.pagination);
         }
+      } else if (!searchQuery.trim() && selectedCategory === 'all' && !minPrice && !maxPrice) {
+        // Fallback to rich curated catalog if empty initial database
+        setProducts(FALLBACK_PRODUCTS);
+        setPagination({
+          total: FALLBACK_PRODUCTS.length,
+          page: 1,
+          pageSize: 24,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        });
+      } else {
+        setProducts(json.data || []);
       }
     } catch (err) {
-      console.warn('Failed to fetch catalog products:', err);
+      console.warn('Failed to fetch catalog products, using curated fallback:', err);
+      if (!searchQuery.trim() && selectedCategory === 'all') {
+        setProducts(FALLBACK_PRODUCTS);
+      }
     } finally {
       setLoading(false);
     }
@@ -243,9 +231,9 @@ export const CatalogView: React.FC = () => {
       </div>
 
       {/* Main Content: Sidebar Filters + Product Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Filters Sidebar */}
-        <div className="space-y-6 bg-white border border-[#e5e7eb] rounded-lg p-5 h-fit shadow-xs">
+        <div className="lg:col-span-3 space-y-6 bg-white border border-[#e5e7eb] rounded-xl p-5 h-fit shadow-xs sticky top-24">
           <div className="flex items-center justify-between pb-3 border-b border-[#e5e7eb]">
             <div className="flex items-center space-x-2 text-xs font-medium uppercase tracking-wider text-[#171717]">
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#171717]" />
@@ -340,10 +328,10 @@ export const CatalogView: React.FC = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-9 space-y-6">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, idx) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+              {[...Array(8)].map((_, idx) => (
                 <div
                   key={idx}
                   className="rounded-lg bg-white border border-[#e5e7eb] p-4 space-y-3 animate-pulse shadow-xs"
@@ -370,7 +358,7 @@ export const CatalogView: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
               {products.map((p) => {
                 const isAdding = addingId === p.id;
                 const isLowStock = p.stock > 0 && p.stock <= 5;

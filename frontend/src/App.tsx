@@ -59,40 +59,97 @@ const MainView: React.FC = () => {
         }}
       />
 
-      <main className="max-w-6xl mx-auto px-6 py-10 flex-1 w-full space-y-12">
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-10">
         {/* HERO BANNER (Shown across Catalog) */}
         {activeTab === 'catalog' && (
-          <div className="space-y-8">
-            <div className="relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] p-8 md:p-14 shadow-xs">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-xs font-medium text-[#171717] mb-6">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#171717]"></span>
-                  <span>Handcrafted & Curated Essentials</span>
-                </div>
-                <h1 className="text-3xl sm:text-5xl md:text-6xl font-normal tracking-tighter text-[#171717] leading-[1.08] mb-5">
-                  Thoughtfully designed for everyday living.
-                </h1>
-                <p className="text-[#6b7280] text-sm md:text-base leading-relaxed mb-8 max-w-2xl">
-                  Discover verified independent merchants, artisanal homeware, acoustic audio gear, and contemporary lifestyle collections delivered directly to you.
-                </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={scrollToCatalog}
-                    className="inline-flex items-center space-x-2 px-6 h-10 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs cursor-pointer"
-                  >
-                    <span>Shop All Products</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-
-                  {(!profile || (profile.role === 'CUSTOMER' && !profile.vendor)) && (
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] p-6 sm:p-10 lg:p-12 shadow-xs">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                {/* Left Column: Headline, Description & CTAs */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-xs font-medium text-[#171717]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#171717]"></span>
+                    <span>Curated Independent Marketplace</span>
+                  </div>
+                  <h1 className="text-3xl sm:text-5xl md:text-6xl font-normal tracking-tighter text-[#171717] leading-[1.06]">
+                    Thoughtfully designed for everyday living.
+                  </h1>
+                  <p className="text-[#6b7280] text-sm md:text-base leading-relaxed max-w-xl">
+                    Discover verified independent merchants, artisanal homeware, acoustic audio gear, and contemporary lifestyle collections delivered directly to you.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
-                      onClick={() => (profile ? setIsOnboardOpen(true) : setIsAuthOpen(true))}
-                      className="inline-flex items-center space-x-2 px-5 h-10 rounded-full bg-white hover:bg-[#fafafa] text-[#171717] border border-[#e5e7eb] font-medium text-xs transition cursor-pointer"
+                      onClick={scrollToCatalog}
+                      className="inline-flex items-center space-x-2 px-6 h-10 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs cursor-pointer"
                     >
-                      <Store className="w-3.5 h-3.5 text-[#6b7280]" />
-                      <span>Sell on UrbanBasket</span>
+                      <span>Explore 24+ Goods</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </button>
-                  )}
+
+                    {(!profile || (profile.role === 'CUSTOMER' && !profile.vendor)) && (
+                      <button
+                        onClick={() => (profile ? setIsOnboardOpen(true) : setIsAuthOpen(true))}
+                        className="inline-flex items-center space-x-2 px-5 h-10 rounded-full bg-white hover:bg-[#fafafa] text-[#171717] border border-[#e5e7eb] font-medium text-xs transition cursor-pointer"
+                      >
+                        <Store className="w-3.5 h-3.5 text-[#6b7280]" />
+                        <span>Sell on UrbanBasket</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Highlights Strip */}
+                  <div className="pt-4 border-t border-[#f3f4f6] flex flex-wrap items-center gap-6 text-[11px] text-[#6b7280]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-[#171717]">4.9 / 5.0</span>
+                      <span>Verified Ratings</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-[#171717]">100%</span>
+                      <span>Vetted Makers</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-[#171717]">Free Shipping</span>
+                      <span>On Orders $75+</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Featured Spotlight Card */}
+                <div className="lg:col-span-5">
+                  <div
+                    onClick={scrollToCatalog}
+                    className="group relative rounded-xl border border-[#e5e7eb] bg-[#fafafa] p-4.5 hover:border-[#171717] transition-all duration-200 cursor-pointer shadow-xs"
+                  >
+                    <div className="flex items-center justify-between text-[11px] text-[#6b7280] mb-3">
+                      <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#e5e7eb] font-medium text-[#171717] text-[10px] uppercase tracking-wider">
+                        Editor's Choice
+                      </span>
+                      <span>TechNest Electronics</span>
+                    </div>
+                    <div className="w-full aspect-[4/3] rounded-lg overflow-hidden bg-white mb-3.5 border border-[#e5e7eb] relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"
+                        alt="Wireless ANC Over-Ear Headphones"
+                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                      />
+                      <span className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#171717] text-white shadow-xs">
+                        $179.99
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-semibold text-[#171717] group-hover:text-black">
+                          Wireless ANC Over-Ear Headphones
+                        </h4>
+                        <p className="text-[11px] text-[#6b7280] mt-0.5">
+                          Hybrid ANC &bull; 40-hr battery &bull; Matte Black
+                        </p>
+                      </div>
+                      <span className="text-xs font-medium text-[#171717] underline underline-offset-2 flex-shrink-0">
+                        View
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -187,7 +244,7 @@ const MainView: React.FC = () => {
 
       {/* Real Multi-Column E-Commerce Footer */}
       <footer className="border-t border-[#e5e7eb] bg-white pt-12 pb-8 text-xs text-[#6b7280]">
-        <div className="max-w-6xl mx-auto px-6 space-y-10">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Col 1 */}
             <div className="space-y-3">

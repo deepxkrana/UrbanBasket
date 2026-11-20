@@ -8,16 +8,15 @@ import {
   PaymentProvider,
   ReviewStatus,
   CouponType,
-  PayoutStatus,
   Prisma,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function main() {
-  console.log('🌱 Starting database seed for UrbanBasket...');
+  console.log('🌱 Starting comprehensive database seed for UrbanBasket...');
 
-  // 1. Clean existing records in reverse dependency order to ensure idempotency
+  // 1. Clean existing product/order/review records safely
   await prisma.orderStatusHistory.deleteMany();
   await prisma.vendorPayout.deleteMany();
   await prisma.couponUsage.deleteMany();
@@ -25,15 +24,29 @@ export async function main() {
   await prisma.payment.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
-  await prisma.address.deleteMany();
   await prisma.productImage.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.coupon.deleteMany();
-  await prisma.vendorProfile.deleteMany();
-  await prisma.profile.deleteMany();
 
-  console.log('🧹 Cleaned existing database records');
+  // Delete addresses of non-google users
+  await prisma.address.deleteMany({
+    where: {
+      user: {
+        email: { not: 'deepakrrana7@gmail.com' },
+      },
+    },
+  });
+
+  // Delete vendor profiles and non-Google profiles
+  await prisma.vendorProfile.deleteMany();
+  await prisma.profile.deleteMany({
+    where: {
+      email: { not: 'deepakrrana7@gmail.com' },
+    },
+  });
+
+  console.log('🧹 Cleaned existing records (preserved active user profile)');
 
   // 2. Demo Profiles
   const adminProfile = await prisma.profile.create({
@@ -63,11 +76,20 @@ export async function main() {
     },
   });
 
-  const pendingVendorProfile = await prisma.profile.create({
+  const vendor3Profile = await prisma.profile.create({
     data: {
       supabaseUserId: 'supa-vendor-003',
-      name: 'David Craft (ArtisanGoods)',
+      name: 'David Craft (Artisan Woodcraft)',
       email: 'artisan@urbanbasket.com',
+      role: Role.VENDOR,
+    },
+  });
+
+  const vendor4Profile = await prisma.profile.create({
+    data: {
+      supabaseUserId: 'supa-vendor-004',
+      name: 'Astrid Lindholm (Nordic Atelier)',
+      email: 'nordic@urbanbasket.com',
       role: Role.VENDOR,
     },
   });
@@ -81,7 +103,7 @@ export async function main() {
     },
   });
 
-  console.log('✅ Created 5 User Profiles (Admin, 2 Approved Vendors, 1 Pending Vendor, 1 Customer)');
+  console.log('✅ Created User Profiles (Admin, 4 Vendors, 1 Customer)');
 
   // 3. Vendor Profiles
   const techNestVendor = await prisma.vendorProfile.create({
@@ -89,9 +111,9 @@ export async function main() {
       userId: vendor1Profile.id,
       storeName: 'TechNest Electronics',
       storeSlug: 'technest-electronics',
-      description: 'Cutting-edge consumer electronics, accessories, and smart devices.',
+      description: 'Acoustic audio gear, ergonomic peripherals, and precision everyday tech.',
       status: VendorStatus.APPROVED,
-      commissionRate: new Prisma.Decimal(0.10), // 10% platform fee
+      commissionRate: new Prisma.Decimal(0.10),
     },
   });
 
@@ -102,22 +124,33 @@ export async function main() {
       storeSlug: 'greenliving-organics',
       description: 'Sustainably sourced, zero-waste, and handcrafted daily lifestyle essentials.',
       status: VendorStatus.APPROVED,
-      commissionRate: new Prisma.Decimal(0.08), // 8% platform fee
+      commissionRate: new Prisma.Decimal(0.08),
     },
   });
 
-  await prisma.vendorProfile.create({
+  const artisanVendor = await prisma.vendorProfile.create({
     data: {
-      userId: pendingVendorProfile.id,
+      userId: vendor3Profile.id,
       storeName: 'Artisan Woodcraft & Co',
       storeSlug: 'artisan-woodcraft',
-      description: 'Handmade reclaimed wood kitchenware and home decor.',
-      status: VendorStatus.PENDING,
-      commissionRate: new Prisma.Decimal(0.12),
+      description: 'Handmade reclaimed wood kitchenware, bespoke stoneware, and culinary tools.',
+      status: VendorStatus.APPROVED,
+      commissionRate: new Prisma.Decimal(0.10),
     },
   });
 
-  console.log('✅ Created 3 Vendor Stores');
+  const nordicVendor = await prisma.vendorProfile.create({
+    data: {
+      userId: vendor4Profile.id,
+      storeName: 'Nordic Living Atelier',
+      storeSlug: 'nordic-living-atelier',
+      description: 'Scandinavian minimalist homeware, pure linen textiles, and timeless goods.',
+      status: VendorStatus.APPROVED,
+      commissionRate: new Prisma.Decimal(0.10),
+    },
+  });
+
+  console.log('✅ Created 4 Approved Vendor Stores');
 
   // 4. Categories
   const categories = await Promise.all([
@@ -125,205 +158,388 @@ export async function main() {
       data: { name: 'Electronics & Audio', slug: 'electronics-audio' },
     }),
     prisma.category.create({
-      data: { name: 'Home & Kitchen', slug: 'home-kitchen' },
+      data: { name: 'Home & Living', slug: 'home-living' },
+    }),
+    prisma.category.create({
+      data: { name: 'Kitchen & Dining', slug: 'kitchen-dining' },
     }),
     prisma.category.create({
       data: { name: 'Eco Lifestyle', slug: 'eco-lifestyle' },
     }),
     prisma.category.create({
-      data: { name: 'Wearables & Fitness', slug: 'wearables-fitness' },
+      data: { name: 'Wearables & Goods', slug: 'wearables-goods' },
     }),
   ]);
 
-  const [catElectronics, catHome, catEco, catWearables] = categories;
-  console.log('✅ Created 4 Product Categories');
+  const [catAudio, catHome, catKitchen, catEco, catWearables] = categories;
+  console.log('✅ Created 5 Product Categories');
 
-  // 5. Products & Product Images
-  const p1 = await prisma.product.create({
-    data: {
+  // 5. Rich Products (24 Items)
+  const productData = [
+    // Electronics & Audio (TechNest)
+    {
       vendorId: techNestVendor.id,
-      categoryId: catElectronics.id,
+      categoryId: catAudio.id,
       name: 'Wireless ANC Over-Ear Headphones',
       slug: 'wireless-anc-over-ear-headphones',
-      description: 'High-fidelity audio with hybrid active noise cancellation, 40-hour battery life, and memory-foam ear cushions.',
-      price: new Prisma.Decimal(179.99),
+      description: 'High-fidelity audio with hybrid active noise cancellation, 40-hour battery life, and memory-foam ear cushions. Premium matte anodized finish with lossless Bluetooth 5.3 codecs.',
+      price: 179.99,
       stock: 45,
-      status: ProductStatus.PUBLISHED,
-      averageRating: new Prisma.Decimal(4.8),
-      reviewCount: 1,
-      images: {
-        create: [
-          {
-            storagePath: 'products/headphones-1.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80',
-            position: 0,
-            altText: 'TechNest Wireless ANC Headphones in Matte Black',
-          },
-          {
-            storagePath: 'products/headphones-2.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&q=80',
-            position: 1,
-            altText: 'Headphones side view on stand',
-          },
-        ],
-      },
+      rating: 4.9,
+      reviewCount: 142,
+      imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80',
+      alt: 'Wireless ANC Over-Ear Headphones in Matte Black',
     },
-  });
-
-  const p2 = await prisma.product.create({
-    data: {
+    {
       vendorId: techNestVendor.id,
-      categoryId: catElectronics.id,
+      categoryId: catAudio.id,
       name: 'Custom Mechanical RGB Keyboard',
       slug: 'custom-mechanical-rgb-keyboard',
-      description: 'Hot-swappable tactile switches with aircraft-grade aluminum frame and per-key customizable RGB lighting.',
-      price: new Prisma.Decimal(99.50),
-      stock: 30,
-      status: ProductStatus.PUBLISHED,
-      averageRating: new Prisma.Decimal(5.0),
-      reviewCount: 0,
-      images: {
-        create: [
-          {
-            storagePath: 'products/keyboard-1.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&q=80',
-            position: 0,
-            altText: 'Mechanical keyboard with warm RGB backlighting',
-          },
-        ],
-      },
+      description: 'Hot-swappable tactile switches with aircraft-grade aluminum top frame, sound-dampening silicone gaskets, and per-key customizable warm amber-to-RGB backlighting.',
+      price: 119.50,
+      stock: 32,
+      rating: 4.8,
+      reviewCount: 86,
+      imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&q=80',
+      alt: 'Mechanical keyboard with warm RGB backlighting',
     },
-  });
-
-  const p3 = await prisma.product.create({
-    data: {
+    {
+      vendorId: techNestVendor.id,
+      categoryId: catAudio.id,
+      name: 'Studio Hi-Fi Desktop Speakers',
+      slug: 'studio-hi-fi-desktop-speakers',
+      description: 'Reference-grade active bookshelf monitors with solid American walnut enclosure, Kevlar cone woofers, and silk dome tweeters for pristine nearfield acoustic reproduction.',
+      price: 229.00,
+      stock: 18,
+      rating: 4.9,
+      reviewCount: 54,
+      imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&q=80',
+      alt: 'Pair of walnut wood bookshelf monitors on studio desk',
+    },
+    {
       vendorId: techNestVendor.id,
       categoryId: catWearables.id,
       name: 'AeroTrack Pro Fitness Smartwatch',
       slug: 'aerotrack-pro-smartwatch',
-      description: 'Continuous SpO2 and optical heart rate tracking, built-in dual-band GPS, AMOLED retina display with 5ATM water resistance.',
-      price: new Prisma.Decimal(129.00),
-      stock: 60,
-      status: ProductStatus.PUBLISHED,
-      averageRating: new Prisma.Decimal(4.5),
-      reviewCount: 0,
-      images: {
-        create: [
-          {
-            storagePath: 'products/smartwatch-1.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80',
-            position: 0,
-            altText: 'AeroTrack Pro Smartwatch on minimal display',
-          },
-        ],
-      },
+      description: 'Continuous SpO2 and optical heart rate tracking, built-in dual-band GPS, sapphire crystal glass, AMOLED retina display with 5ATM water resistance and 14-day battery life.',
+      price: 149.00,
+      stock: 58,
+      rating: 4.7,
+      reviewCount: 98,
+      imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80',
+      alt: 'AeroTrack Pro Smartwatch on minimal display stand',
     },
-  });
-
-  const p4 = await prisma.product.create({
-    data: {
-      vendorId: greenLivingVendor.id,
-      categoryId: catEco.id,
-      name: 'Organic Cold-Pressed Virgin Coconut Oil 1L',
-      slug: 'organic-virgin-coconut-oil-1l',
-      description: '100% pure raw unrefined coconut oil extracted from freshly harvested Kerala coconuts. Food-grade and cruelty-free.',
-      price: new Prisma.Decimal(16.50),
-      stock: 120,
-      status: ProductStatus.PUBLISHED,
-      averageRating: new Prisma.Decimal(4.9),
-      reviewCount: 1,
-      images: {
-        create: [
-          {
-            storagePath: 'products/coconut-oil-1.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=800&q=80',
-            position: 0,
-            altText: 'Glass jar of cold-pressed organic coconut oil',
-          },
-        ],
-      },
+    {
+      vendorId: techNestVendor.id,
+      categoryId: catAudio.id,
+      name: 'Precision Aluminum Wireless Mouse',
+      slug: 'precision-aluminum-wireless-mouse',
+      description: 'CNC-machined anodized aluminum unibody with magnetic frictionless scroll wheel, silent tactile switches, and USB-C fast charging lasting up to 90 days per charge.',
+      price: 64.00,
+      stock: 75,
+      rating: 4.6,
+      reviewCount: 42,
+      imageUrl: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&q=80',
+      alt: 'Ergonomic aluminum wireless desk mouse',
     },
-  });
+    {
+      vendorId: techNestVendor.id,
+      categoryId: catAudio.id,
+      name: 'MagCharge 3-in-1 Wireless Stand',
+      slug: 'magcharge-3-in-1-wireless-stand',
+      description: 'Simultaneously fast-charges phone, earbuds, and smartwatch on a weighted space gray aluminum pedestal with integrated thermal heat dissipation.',
+      price: 79.00,
+      stock: 40,
+      rating: 4.8,
+      reviewCount: 115,
+      imageUrl: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800&q=80',
+      alt: 'MagCharge 3-in-1 wireless stand charging devices',
+    },
 
-  const p5 = await prisma.product.create({
-    data: {
-      vendorId: greenLivingVendor.id,
+    // Home & Living (Nordic Living Atelier)
+    {
+      vendorId: nordicVendor.id,
       categoryId: catHome.id,
+      name: 'Handmade Stoneware Ceramic Mug Set',
+      slug: 'handmade-stoneware-ceramic-mug-set',
+      description: 'Set of 4 artisan coffee mugs thrown on a traditional potter wheel with natural volcanic speckling and soft-touch satin glaze. Microwave and dishwasher safe.',
+      price: 48.00,
+      stock: 65,
+      rating: 4.9,
+      reviewCount: 73,
+      imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&q=80',
+      alt: 'Set of ceramic mugs with warm artisan coffee',
+    },
+    {
+      vendorId: nordicVendor.id,
+      categoryId: catKitchen.id,
+      name: 'Japanese Cast Iron Teapot & Infuser',
+      slug: 'japanese-cast-iron-teapot-800ml',
+      description: 'Traditional Tetsubin-inspired cast iron kettle with porcelain enamel interior, removable fine-mesh stainless steel infuser, and exceptional heat retention.',
+      price: 68.00,
+      stock: 28,
+      rating: 5.0,
+      reviewCount: 39,
+      imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=80',
+      alt: 'Textured black cast iron teapot on wooden trivet',
+    },
+    {
+      vendorId: nordicVendor.id,
+      categoryId: catHome.id,
+      name: 'Woven Organic French Linen Throw',
+      slug: 'woven-organic-french-linen-throw',
+      description: 'Woven from 100% certified Normandy flax linen, pre-washed for vintage softness and relaxed drape. Breathable year-round comfort with subtle fringed edges.',
+      price: 85.00,
+      stock: 35,
+      rating: 4.8,
+      reviewCount: 61,
+      imageUrl: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80',
+      alt: 'Soft textured oatmeal linen throw blanket folded',
+    },
+    {
+      vendorId: nordicVendor.id,
+      categoryId: catHome.id,
+      name: 'Nordic Minimalist Oak Wall Clock',
+      slug: 'nordic-minimalist-oak-wall-clock',
+      description: 'Crafted from solid sustainably harvested European white oak with flush laser-etched hour markers and a whisper-silent German quartz sweeping movement.',
+      price: 55.00,
+      stock: 22,
+      rating: 4.7,
+      reviewCount: 28,
+      imageUrl: 'https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=800&q=80',
+      alt: 'Clean wooden wall clock hanging on textured white wall',
+    },
+    {
+      vendorId: nordicVendor.id,
+      categoryId: catHome.id,
+      name: 'Hand-Poured Amber Glass Soy Candle',
+      slug: 'hand-poured-amber-glass-soy-candle',
+      description: '100% botanical soy wax scented with organic cedarwood, dark vanilla, black tea, and smoked amber. Poured in an apothecary amber jar with unbleached cotton wick.',
+      price: 28.00,
+      stock: 110,
+      rating: 4.9,
+      reviewCount: 110,
+      imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&q=80',
+      alt: 'Amber glass candle burning with gentle flame',
+    },
+    {
+      vendorId: nordicVendor.id,
+      categoryId: catHome.id,
+      name: 'Minimalist Terrazzo Desk Tray',
+      slug: 'minimalist-terrazzo-desk-tray',
+      description: 'Hand-cast terrazzo catchall tray with natural marble stone chips and polished water-resistant sealant. Non-slip cork base preserves tabletop surfaces.',
+      price: 34.00,
+      stock: 50,
+      rating: 4.6,
+      reviewCount: 35,
+      imageUrl: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
+      alt: 'Terrazzo valet tray holding everyday carry items',
+    },
+
+    // Kitchen & Dining (Artisan Woodcraft & Co)
+    {
+      vendorId: artisanVendor.id,
+      categoryId: catKitchen.id,
       name: 'Natural Bamboo Cutlery & Utensils Set',
       slug: 'natural-bamboo-cutlery-set',
-      description: 'Handmade non-toxic bamboo spoons, forks, knives, and reusable straw with washable organic cotton carry pouch.',
-      price: new Prisma.Decimal(22.00),
-      stock: 75,
-      status: ProductStatus.PUBLISHED,
-      averageRating: new Prisma.Decimal(0.0),
-      reviewCount: 0,
-      images: {
-        create: [
-          {
-            storagePath: 'products/bamboo-cutlery-1.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
-            position: 0,
-            altText: 'Handcrafted natural bamboo utensils set',
-          },
-        ],
-      },
+      description: 'Handcrafted non-toxic bamboo spoons, forks, knives, chopsticks, and reusable straw packaged with an organic washable linen roll-up carry pouch.',
+      price: 24.00,
+      stock: 85,
+      rating: 4.7,
+      reviewCount: 88,
+      imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
+      alt: 'Natural bamboo cutlery set laid out with linen pouch',
     },
-  });
+    {
+      vendorId: artisanVendor.id,
+      categoryId: catKitchen.id,
+      name: 'Damascus Steel Chef Knife 8-Inch',
+      slug: 'damascus-steel-chef-knife-8-inch',
+      description: 'Forged from 67 layers of Japanese VG-10 high-carbon super steel with 60±2 HRC rockwell hardness. Ergonomic rounded Pakkawood handle for effortless slicing.',
+      price: 135.00,
+      stock: 20,
+      rating: 5.0,
+      reviewCount: 94,
+      imageUrl: 'https://images.unsplash.com/photo-1593618998160-e34014e67546?w=800&q=80',
+      alt: 'Damascus steel chef knife resting on dark butcher block',
+    },
+    {
+      vendorId: artisanVendor.id,
+      categoryId: catKitchen.id,
+      name: 'Pour-Over Borosilicate Coffee Dripper',
+      slug: 'pour-over-borosilicate-coffee-dripper',
+      description: 'Thermal-shock resistant borosilicate glass carafe with laser-cut dual mesh stainless steel filter eliminating paper waste while extracting rich coffee crema.',
+      price: 42.00,
+      stock: 45,
+      rating: 4.8,
+      reviewCount: 67,
+      imageUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=800&q=80',
+      alt: 'Glass pour-over coffee dripper brewing fresh coffee',
+    },
+    {
+      vendorId: artisanVendor.id,
+      categoryId: catKitchen.id,
+      name: 'Raw Edge Acacia Wood Serving Board',
+      slug: 'raw-edge-acacia-wood-serving-board',
+      description: 'Single piece solid acacia hardwood board with organic natural live edges and brass hanging hole. Treated with food-safe botanical oils and beeswax.',
+      price: 52.00,
+      stock: 30,
+      rating: 4.9,
+      reviewCount: 45,
+      imageUrl: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=800&q=80',
+      alt: 'Dark acacia wood charcuterie board with artisan bread',
+    },
+    {
+      vendorId: artisanVendor.id,
+      categoryId: catKitchen.id,
+      name: 'Ceramic Salt & Pepper Mill Grinder Set',
+      slug: 'ceramic-salt-pepper-mill-grinder-set',
+      description: 'Adjustable ceramic burr grinding mechanism encased in smooth natural beechwood body with stainless steel crown adjustment from coarse cracked pepper to fine dust.',
+      price: 46.00,
+      stock: 55,
+      rating: 4.8,
+      reviewCount: 52,
+      imageUrl: 'https://images.unsplash.com/photo-1588854337236-6889d631faa8?w=800&q=80',
+      alt: 'Pair of wooden spice and salt grinder mills',
+    },
 
-  // Draft product example
-  await prisma.product.create({
-    data: {
-      vendorId: techNestVendor.id,
+    // Eco Lifestyle (GreenLiving Organics)
+    {
+      vendorId: greenLivingVendor.id,
+      categoryId: catEco.id,
+      name: 'Organic Virgin Coconut Oil 1L',
+      slug: 'organic-virgin-coconut-oil-1l',
+      description: '100% pure raw unrefined cold-pressed coconut oil extracted from wild harvested coastal coconuts. Unbleached, unhydrogenated, and bottled in UV-protective amber glass.',
+      price: 18.50,
+      stock: 140,
+      rating: 4.9,
+      reviewCount: 164,
+      imageUrl: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=800&q=80',
+      alt: 'Glass jar of organic cold-pressed coconut oil',
+    },
+    {
+      vendorId: greenLivingVendor.id,
+      categoryId: catEco.id,
+      name: 'Reusable Beeswax Food Wraps (3-Pack)',
+      slug: 'reusable-beeswax-food-wraps-3-pack',
+      description: 'Biodegradable alternative to plastic cling wrap. Infused with organic beeswax, jojoba oil, and natural tree resin on GOTS certified organic printed cotton.',
+      price: 19.99,
+      stock: 95,
+      rating: 4.7,
+      reviewCount: 83,
+      imageUrl: 'https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=800&q=80',
+      alt: 'Set of patterned beeswax wraps wrapping fresh sourdough',
+    },
+    {
+      vendorId: greenLivingVendor.id,
+      categoryId: catEco.id,
+      name: 'Stainless Steel Insulated Tumbler 750ml',
+      slug: 'stainless-steel-insulated-tumbler-750ml',
+      description: 'Double-walled vacuum insulated 18/8 food-grade stainless steel bottle. Keeps drinks icy cold for 24 hours or piping hot for 12 hours with condensation-free powder coat.',
+      price: 32.00,
+      stock: 80,
+      rating: 4.8,
+      reviewCount: 127,
+      imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&q=80',
+      alt: 'Matte sage green stainless steel travel bottle',
+    },
+    {
+      vendorId: greenLivingVendor.id,
+      categoryId: catEco.id,
+      name: 'Heavyweight Organic Canvas Tote Bag',
+      slug: 'heavyweight-organic-canvas-tote-bag',
+      description: 'Crafted from durable 16oz fair-trade certified organic cotton canvas with reinforced box-stitched handles, interior zipped security pocket, and key leash clip.',
+      price: 38.00,
+      stock: 60,
+      rating: 4.6,
+      reviewCount: 49,
+      imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80',
+      alt: 'Natural cream heavy canvas tote bag styled outdoors',
+    },
+
+    // Wearables & Goods (Nordic & TechNest)
+    {
+      vendorId: nordicVendor.id,
       categoryId: catWearables.id,
-      name: 'Next-Gen Holographic AR Glasses (Beta)',
-      slug: 'holographic-ar-glasses-beta',
-      description: 'Enterprise Augmented Reality wearable with spatial audio and micro-OLED optical waveguiding.',
-      price: new Prisma.Decimal(599.00),
-      stock: 5,
-      status: ProductStatus.DRAFT,
-      images: {
-        create: [
-          {
-            storagePath: 'products/ar-glasses-1.jpg',
-            publicUrl: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=800&q=80',
-            position: 0,
-            altText: 'Futuristic smart glasses prototype',
-          },
-        ],
+      name: 'Merino Wool Minimalist Beanie',
+      slug: 'merino-wool-minimalist-beanie',
+      description: 'Spun from 100% non-mulesed Australian extrafine merino wool in a snug 7-gauge ribbed knit. Naturally thermoregulating, odor-resistant, and itch-free.',
+      price: 36.00,
+      stock: 70,
+      rating: 4.9,
+      reviewCount: 71,
+      imageUrl: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=800&q=80',
+      alt: 'Charcoal grey merino wool ribbed knit beanie',
+    },
+    {
+      vendorId: artisanVendor.id,
+      categoryId: catWearables.id,
+      name: 'Full-Grain Vegetable Tanned Cardholder',
+      slug: 'full-grain-leather-cardholder',
+      description: 'Handmade from Tuscan vegetable-tanned full-grain cowhide leather with hand-waxed saddle stitching and beveled beeswax-burnished edges. Develops rich natural patina.',
+      price: 45.00,
+      stock: 50,
+      rating: 4.9,
+      reviewCount: 93,
+      imageUrl: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=80',
+      alt: 'Whiskey brown full-grain leather pocket cardholder',
+    },
+    {
+      vendorId: nordicVendor.id,
+      categoryId: catWearables.id,
+      name: 'Polarized Acetate Classic Sunglasses',
+      slug: 'polarized-acetate-classic-sunglasses',
+      description: 'Hand-finished Italian Mazzucchelli bio-acetate frames featuring 5-barrel custom German hinges and scratch-resistant polarized CR-39 lenses with 100% UVA/UVB protection.',
+      price: 95.00,
+      stock: 35,
+      rating: 4.7,
+      reviewCount: 58,
+      imageUrl: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80',
+      alt: 'Dark tortoiseshell polarized sunglasses on clean marble surface',
+    },
+  ];
+
+  console.log(`📦 Seeding ${productData.length} published products...`);
+
+  for (const item of productData) {
+    await prisma.product.create({
+      data: {
+        vendorId: item.vendorId,
+        categoryId: item.categoryId,
+        name: item.name,
+        slug: item.slug,
+        description: item.description,
+        price: new Prisma.Decimal(item.price),
+        stock: item.stock,
+        status: ProductStatus.PUBLISHED,
+        averageRating: new Prisma.Decimal(item.rating),
+        reviewCount: item.reviewCount,
+        images: {
+          create: [
+            {
+              storagePath: `products/${item.slug}.jpg`,
+              publicUrl: item.imageUrl,
+              position: 0,
+              altText: item.alt,
+            },
+          ],
+        },
       },
-    },
-  });
+    });
+  }
 
-  console.log('✅ Created 6 Products across multiple categories with image galleries');
+  console.log(`✅ Created ${productData.length} Products with rich images and metadata`);
 
-  // 6. Customer Address
-  const customerAddress = await prisma.address.create({
-    data: {
-      userId: customerProfile.id,
-      name: 'Priya Patel',
-      phone: '+91 98765 43210',
-      line1: 'Flat 402, Green Meadows Residences',
-      line2: '14th Cross, Indiranagar',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      postalCode: '560038',
-      country: 'India',
-      isDefault: true,
-    },
-  });
-
-  console.log('✅ Created Customer Address');
-
-  // 7. Coupons
-  const couponWelcome = await prisma.coupon.create({
+  // 6. Promotional Coupons
+  await prisma.coupon.create({
     data: {
       code: 'WELCOME10',
       type: CouponType.PERCENTAGE,
-      value: new Prisma.Decimal(10.00), // 10%
+      value: new Prisma.Decimal(10.00),
       minimumAmount: new Prisma.Decimal(50.00),
       maximumDiscount: new Prisma.Decimal(30.00),
       usageLimit: 500,
-      usedCount: 1,
+      usedCount: 0,
       startsAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
       isActive: true,
@@ -332,9 +548,24 @@ export async function main() {
 
   await prisma.coupon.create({
     data: {
+      code: 'SAVE20',
+      type: CouponType.PERCENTAGE,
+      value: new Prisma.Decimal(20.00),
+      minimumAmount: new Prisma.Decimal(120.00),
+      maximumDiscount: new Prisma.Decimal(50.00),
+      usageLimit: 300,
+      usedCount: 0,
+      startsAt: new Date(),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      isActive: true,
+    },
+  });
+
+  await prisma.coupon.create({
+    data: {
       code: 'FLAT25',
       type: CouponType.FIXED,
-      value: new Prisma.Decimal(25.00), // $25 off
+      value: new Prisma.Decimal(25.00),
       minimumAmount: new Prisma.Decimal(100.00),
       usageLimit: 200,
       usedCount: 0,
@@ -344,168 +575,15 @@ export async function main() {
     },
   });
 
-  console.log('✅ Created 2 Promotional Coupons (WELCOME10 & FLAT25)');
-
-  // 8. Completed Multi-Vendor Sample Order
-  // Item 1: Headphones from TechNest: 1 x 179.99 = 179.99
-  // Item 2: Coconut Oil from GreenLiving: 2 x 16.50 = 33.00
-  // Subtotal = 212.99
-  // Discount (10% with WELCOME10) = 21.30
-  // Total = 191.69
-  // Commissions:
-  // TechNest: 179.99 * 0.10 = 18.00 commission -> Vendor Payout = 161.99
-  // GreenLiving: 33.00 * 0.08 = 2.64 commission -> Vendor Payout = 30.36
-  // Total Platform Commission = 20.64
-
-  const item1Subtotal = new Prisma.Decimal(179.99);
-  const item1Commission = new Prisma.Decimal(18.00);
-  const item1Payout = new Prisma.Decimal(161.99);
-
-  const item2Subtotal = new Prisma.Decimal(33.00);
-  const item2Commission = new Prisma.Decimal(2.64);
-  const item2Payout = new Prisma.Decimal(30.36);
-
-  const sampleOrder = await prisma.order.create({
-    data: {
-      customerId: customerProfile.id,
-      addressId: customerAddress.id,
-      status: OrderStatus.DELIVERED,
-      subtotal: new Prisma.Decimal(212.99),
-      discount: new Prisma.Decimal(21.30),
-      total: new Prisma.Decimal(191.69),
-      platformCommission: new Prisma.Decimal(20.64),
-      paymentStatus: PaymentStatus.COMPLETED,
-      paymentProvider: PaymentProvider.STRIPE,
-      paymentReference: 'pi_test_3OubBasketSample01',
-      invoiceUrl: '/api/v1/orders/sample-order/invoice',
-      items: {
-        create: [
-          {
-            productId: p1.id,
-            vendorId: techNestVendor.id,
-            quantity: 1,
-            unitPrice: new Prisma.Decimal(179.99),
-            subtotal: item1Subtotal,
-            vendorPayout: item1Payout,
-            status: OrderStatus.DELIVERED,
-          },
-          {
-            productId: p4.id,
-            vendorId: greenLivingVendor.id,
-            quantity: 2,
-            unitPrice: new Prisma.Decimal(16.50),
-            subtotal: item2Subtotal,
-            vendorPayout: item2Payout,
-            status: OrderStatus.DELIVERED,
-          },
-        ],
-      },
-      payments: {
-        create: {
-          provider: PaymentProvider.STRIPE,
-          providerPaymentId: 'ch_test_3OubBasketStripeCharge01',
-          amount: new Prisma.Decimal(191.69),
-          platformCommission: new Prisma.Decimal(20.64),
-          status: PaymentStatus.COMPLETED,
-        },
-      },
-      statusHistory: {
-        create: [
-          {
-            status: OrderStatus.PLACED,
-            changedBy: customerProfile.id,
-            note: 'Order placed via Stripe checkout',
-          },
-          {
-            status: OrderStatus.PACKED,
-            changedBy: 'SYSTEM',
-            note: 'Vendors confirmed item packing',
-          },
-          {
-            status: OrderStatus.SHIPPED,
-            changedBy: 'SYSTEM',
-            note: 'Dispatched via express logistics',
-          },
-          {
-            status: OrderStatus.DELIVERED,
-            changedBy: 'SYSTEM',
-            note: 'Delivered and verified by customer OTP',
-          },
-        ],
-      },
-    },
-    include: {
-      items: true,
-    },
-  });
-
-  // Record coupon usage
-  await prisma.couponUsage.create({
-    data: {
-      couponId: couponWelcome.id,
-      customerId: customerProfile.id,
-      orderId: sampleOrder.id,
-      discountAmount: new Prisma.Decimal(21.30),
-    },
-  });
-
-  // Record vendor payouts
-  const [orderItem1, orderItem2] = sampleOrder.items;
-
-  await prisma.vendorPayout.create({
-    data: {
-      vendorId: techNestVendor.id,
-      orderItemId: orderItem1.id,
-      amount: item1Payout,
-      status: PayoutStatus.PAID,
-      providerPayoutId: 'tr_test_payout_technest_001',
-    },
-  });
-
-  await prisma.vendorPayout.create({
-    data: {
-      vendorId: greenLivingVendor.id,
-      orderItemId: orderItem2.id,
-      amount: item2Payout,
-      status: PayoutStatus.PAID,
-      providerPayoutId: 'tr_test_payout_greenliving_001',
-    },
-  });
-
-  // 9. Verified Review on delivered item
-  await prisma.review.create({
-    data: {
-      customerId: customerProfile.id,
-      productId: p1.id,
-      orderItemId: orderItem1.id,
-      rating: 5,
-      comment: 'Superb sound clarity and the noise canceling is top notch for working in noisy cafes! Highly recommended.',
-      status: ReviewStatus.APPROVED,
-    },
-  });
-
-  await prisma.review.create({
-    data: {
-      customerId: customerProfile.id,
-      productId: p4.id,
-      orderItemId: orderItem2.id,
-      rating: 5,
-      comment: 'Authentic aroma and pure quality. Will definitely purchase again!',
-      status: ReviewStatus.APPROVED,
-    },
-  });
-
-  console.log('✅ Created Multi-Vendor Delivered Order with split payouts, coupon usage, and verified reviews');
-  console.log('🎉 Seed complete! All demo roles and datasets are initialized.');
+  console.log('✅ Created 3 Promotional Coupons (WELCOME10, SAVE20, FLAT25)');
+  console.log('🎉 UrbanBasket database seed successfully completed!');
 }
 
-if (require.main === module) {
-  main()
-    .catch((e) => {
-      console.error('❌ Seed execution failed:', e);
-      process.exit(1);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
-}
+main()
+  .catch((e) => {
+    console.error('❌ Seeding failed with error:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
