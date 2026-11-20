@@ -84,7 +84,7 @@ export const CatalogView: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/categories`);
       const json = await res.json();
       if (json.success) {
@@ -98,7 +98,7 @@ export const CatalogView: React.FC = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const params = new URLSearchParams();
 
       if (searchQuery.trim()) params.append('q', searchQuery.trim());

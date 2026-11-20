@@ -71,7 +71,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/products/${productSlug}`);
       const json = await res.json();
       if (!res.ok) {

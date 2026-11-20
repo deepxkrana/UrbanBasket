@@ -56,7 +56,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
 
   const fetchCart = useCallback(async () => {
     if (!token) {

@@ -90,7 +90,7 @@ export const AdminApprovalsView: React.FC = () => {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
 
   // ------------------------------------------------------------------
   // Data Fetching

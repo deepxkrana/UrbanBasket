@@ -72,7 +72,7 @@ export const AdminAnalyticsView: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
   const rootUrl = apiUrl.replace('/api/v1', '/api');
 
   const fetchAnalytics = async () => {

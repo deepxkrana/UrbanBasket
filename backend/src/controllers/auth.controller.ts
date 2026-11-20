@@ -160,6 +160,12 @@ export const getLatestSession = async (
         },
         include: { vendorProfile: true },
       });
+    } else if (profile.supabaseUserId !== latest.userId) {
+      profile = await prisma.profile.update({
+        where: { id: profile.id },
+        data: { supabaseUserId: latest.userId },
+        include: { vendorProfile: true },
+      });
     }
 
     res.status(200).json({

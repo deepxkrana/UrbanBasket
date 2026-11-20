@@ -41,7 +41,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   const fetchCategories = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/categories`);
       const json = await res.json();
       if (json.success && json.data.length > 0) {
@@ -61,7 +61,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
     setError(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/vendors/me/products`, {
         method: 'POST',
         headers: {

@@ -29,7 +29,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   if (!isOpen) return null;
 
-  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

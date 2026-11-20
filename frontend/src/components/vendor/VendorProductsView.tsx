@@ -34,7 +34,7 @@ export const VendorProductsView: React.FC = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/vendors/me/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ export const VendorProductsView: React.FC = () => {
   const handleDelete = async (productId: string) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
       const res = await fetch(`${apiUrl}/vendors/me/products/${productId}`, {
         method: 'DELETE',
         headers: {

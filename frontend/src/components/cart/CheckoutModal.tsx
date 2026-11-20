@@ -52,7 +52,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null);
 
-  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
 
   useEffect(() => {
     if (isOpen && token) {

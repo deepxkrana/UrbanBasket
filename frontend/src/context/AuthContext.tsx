@@ -86,31 +86,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (redirectToken) {
         localStorage.setItem('urbanbasket_session_token', redirectToken);
         localStorage.removeItem('urbanbasket_demo_role');
+        localStorage.removeItem('urbanbasket_explicit_logout');
+        localStorage.removeItem('urbanbasket_pending_oauth');
         // Clean up URL query parameters cleanly without reload
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // 2. Check if backend has active Neon Auth session from Google OAuth
-      try {
-        const res = await fetch(`${getApiBaseUrl()}/auth/latest-session`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.data?.token) {
-            const { token: sessionToken, user: sUser, profile: sProfile } = json.data;
-            setToken(sessionToken);
-            localStorage.setItem('urbanbasket_session_token', sessionToken);
-            localStorage.removeItem('urbanbasket_demo_role');
-            setUser(sUser);
-            setProfile(sProfile);
-            setLoading(false);
-            return;
+      const isPendingOAuth = localStorage.getItem('urbanbasket_pending_oauth') === 'google';
+      const isExplicitLogout = localStorage.getItem('urbanbasket_explicit_logout') === 'true';
+
+      // 2. If user just returned from Google OAuth, or hasn't explicitly logged out and has no stored token, check backend latest session
+      if (isPendingOAuth || (!isExplicitLogout && !localStorage.getItem('urbanbasket_session_token') && !localStorage.getItem('urbanbasket_demo_role'))) {
+        let attempts = isPendingOAuth ? 3 : 1;
+        while (attempts > 0) {
+          try {
+            const res = await fetch(`${getApiBaseUrl()}/auth/latest-session`);
+            if (res.ok) {
+              const json = await res.json();
+              if (json.success && json.data?.token) {
+                const { token: sessionToken, user: sUser, profile: sProfile } = json.data;
+                setToken(sessionToken);
+                localStorage.setItem('urbanbasket_session_token', sessionToken);
+                localStorage.removeItem('urbanbasket_demo_role');
+                localStorage.removeItem('urbanbasket_pending_oauth');
+                localStorage.removeItem('urbanbasket_explicit_logout');
+                setUser(sUser);
+                setProfile(sProfile);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch (err) {
+            console.warn('Could not fetch latest session from backend:', err);
+          }
+          attempts--;
+          if (attempts > 0) {
+            await new Promise((r) => setTimeout(r, 400));
           }
         }
-      } catch (err) {
-        console.warn('Could not fetch latest session from backend:', err);
+        localStorage.removeItem('urbanbasket_pending_oauth');
       }
 
-      // 3. Prioritize checking live Better Auth / Neon Auth session
+      // 3. Check for stored session token in localStorage
+      const storedToken = localStorage.getItem('urbanbasket_session_token');
+      if (storedToken && !storedToken.startsWith('demo-token-')) {
+        setToken(storedToken);
+        const p = await fetchCurrentProfile(storedToken);
+        if (p) {
+          setProfile(p);
+          setUser({ id: p.supabaseUserId, email: p.email, name: p.name });
+          setLoading(false);
+          return;
+        } else {
+          localStorage.removeItem('urbanbasket_session_token');
+          setToken(null);
+        }
+      }
+
+      // 4. Check live Better Auth / Neon Auth session (same-origin or unblocked cookie environments)
       try {
         const { data } = await authClient.getSession();
         if (data?.session && data?.user) {
@@ -118,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setToken(sessionToken);
           localStorage.setItem('urbanbasket_session_token', sessionToken);
           localStorage.removeItem('urbanbasket_demo_role');
+          localStorage.removeItem('urbanbasket_explicit_logout');
 
           const authUser: AuthUser = {
             id: data.user.id,
@@ -150,23 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('Neon Auth getSession check skipped:', err);
       }
 
-      // 3. Check for stored session token in localStorage
-      const storedToken = localStorage.getItem('urbanbasket_session_token');
-      if (storedToken && !storedToken.startsWith('demo-token-')) {
-        setToken(storedToken);
-        const p = await fetchCurrentProfile(storedToken);
-        if (p) {
-          setProfile(p);
-          setUser({ id: p.supabaseUserId, email: p.email, name: p.name });
-          setLoading(false);
-          return;
-        } else {
-          localStorage.removeItem('urbanbasket_session_token');
-          setToken(null);
-        }
-      }
-
-      // 4. Fallback: check for stored demo role evaluation
+      // 5. Fallback: check for stored demo role evaluation
       const storedDemoRole = localStorage.getItem('urbanbasket_demo_role');
       if (storedDemoRole) {
         await switchDemoRole(storedDemoRole as 'admin' | 'vendor' | 'customer');
@@ -183,6 +201,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     setLoading(true);
     localStorage.removeItem('urbanbasket_demo_role');
+    localStorage.removeItem('urbanbasket_explicit_logout');
+    localStorage.removeItem('urbanbasket_pending_oauth');
     try {
       const res = await authClient.signIn.email({
         email,
@@ -236,6 +256,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     setLoading(true);
     localStorage.removeItem('urbanbasket_demo_role');
+    localStorage.removeItem('urbanbasket_explicit_logout');
+    localStorage.removeItem('urbanbasket_pending_oauth');
     try {
       const res = await authClient.signUp.email({
         email,
@@ -287,14 +309,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithOAuth = async (provider: 'google') => {
     setError(null);
-    // Explicitly clear demo role so Google login takes effect on redirect
     localStorage.removeItem('urbanbasket_demo_role');
+    localStorage.removeItem('urbanbasket_explicit_logout');
+    localStorage.setItem('urbanbasket_pending_oauth', provider);
     try {
       await authClient.signIn.social({
         provider,
         callbackURL: window.location.origin,
       });
     } catch (err: unknown) {
+      localStorage.removeItem('urbanbasket_pending_oauth');
       const msg = err instanceof Error ? err.message : 'OAuth sign in failed';
       setError(msg);
       throw err;
@@ -304,6 +328,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const switchDemoRole = async (role: 'admin' | 'vendor' | 'customer') => {
     setLoading(true);
     setError(null);
+    localStorage.removeItem('urbanbasket_explicit_logout');
+    localStorage.removeItem('urbanbasket_pending_oauth');
     try {
       const demoToken = `demo-token-${role}`;
       localStorage.setItem('urbanbasket_demo_role', role);
@@ -360,6 +386,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     localStorage.removeItem('urbanbasket_demo_role');
     localStorage.removeItem('urbanbasket_session_token');
+    localStorage.removeItem('urbanbasket_pending_oauth');
+    localStorage.setItem('urbanbasket_explicit_logout', 'true');
     try {
       await authClient.signOut();
     } catch {

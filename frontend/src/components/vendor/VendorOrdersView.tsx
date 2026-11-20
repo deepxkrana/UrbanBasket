@@ -54,7 +54,7 @@ export const VendorOrdersView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
 
   const fetchVendorOrders = async () => {
     if (!token) return;

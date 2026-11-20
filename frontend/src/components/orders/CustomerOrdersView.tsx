@@ -65,7 +65,7 @@ export const CustomerOrdersView: React.FC = () => {
     productImage?: string | null;
   } | null>(null);
 
-  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
 
   const handleDownloadInvoice = async (orderId: string) => {
     setDownloadingInvoice(orderId);
