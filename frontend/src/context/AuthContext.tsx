@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const getApiBaseUrl = () => {
-    return import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+    return import.meta.env.VITE_API_URL || 'http://localhost:5050/api/v1';
   };
 
   const fetchCurrentProfile = async (authToken: string): Promise<UserProfile | null> => {
@@ -72,60 +72,97 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // 1. Check for stored demo token session
-    const storedDemoRole = localStorage.getItem('urbanbasket_demo_role');
-    if (storedDemoRole) {
-      switchDemoRole(storedDemoRole as 'admin' | 'vendor' | 'customer');
-      return;
-    }
+    const initAuth = async () => {
+      // 1. Check if OAuth redirect passed token in URL search or hash
+      const urlParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const redirectToken =
+        urlParams.get('token') ||
+        urlParams.get('session_token') ||
+        urlParams.get('access_token') ||
+        hashParams.get('token') ||
+        hashParams.get('access_token');
 
-    // 2. Check for stored session token
-    const storedToken = localStorage.getItem('urbanbasket_session_token');
-    if (storedToken) {
-      setToken(storedToken);
-      fetchCurrentProfile(storedToken).then((p) => {
-        if (p) {
-          setProfile(p);
-          setUser({ id: p.supabaseUserId, email: p.email, name: p.name });
-        } else {
-          localStorage.removeItem('urbanbasket_session_token');
-          setToken(null);
-        }
-        setLoading(false);
-      });
-      return;
-    }
+      if (redirectToken) {
+        localStorage.setItem('urbanbasket_session_token', redirectToken);
+        localStorage.removeItem('urbanbasket_demo_role');
+        // Clean up URL query parameters cleanly without reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
 
-    // 3. Check live Neon Auth session via Better Auth client
-    authClient
-      .getSession()
-      .then(({ data }) => {
+      // 2. Prioritize checking live Better Auth / Neon Auth session
+      try {
+        const { data } = await authClient.getSession();
         if (data?.session && data?.user) {
           const sessionToken = data.session.token;
           setToken(sessionToken);
           localStorage.setItem('urbanbasket_session_token', sessionToken);
-          setUser({
+          localStorage.removeItem('urbanbasket_demo_role');
+
+          const authUser: AuthUser = {
             id: data.user.id,
             email: data.user.email,
             name: data.user.name,
             image: data.user.image,
-          });
-          fetchCurrentProfile(sessionToken).then((p) => {
-            setProfile(p);
-            setLoading(false);
-          });
-        } else {
+          };
+          setUser(authUser);
+
+          // Immediate optimistic profile from session so UI changes instantly
+          const immediateProfile: UserProfile = {
+            id: data.user.id,
+            supabaseUserId: data.user.id,
+            email: data.user.email,
+            name: data.user.name || data.user.email.split('@')[0],
+            role: 'CUSTOMER',
+          };
+          setProfile(immediateProfile);
           setLoading(false);
+
+          // Background sync with backend for full vendor metadata
+          fetchCurrentProfile(sessionToken).then((backendProfile) => {
+            if (backendProfile) {
+              setProfile(backendProfile);
+            }
+          });
+          return;
         }
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      } catch (err) {
+        console.warn('Neon Auth getSession check skipped:', err);
+      }
+
+      // 3. Check for stored session token in localStorage
+      const storedToken = localStorage.getItem('urbanbasket_session_token');
+      if (storedToken && !storedToken.startsWith('demo-token-')) {
+        setToken(storedToken);
+        const p = await fetchCurrentProfile(storedToken);
+        if (p) {
+          setProfile(p);
+          setUser({ id: p.supabaseUserId, email: p.email, name: p.name });
+          setLoading(false);
+          return;
+        } else {
+          localStorage.removeItem('urbanbasket_session_token');
+          setToken(null);
+        }
+      }
+
+      // 4. Fallback: check for stored demo role evaluation
+      const storedDemoRole = localStorage.getItem('urbanbasket_demo_role');
+      if (storedDemoRole) {
+        await switchDemoRole(storedDemoRole as 'admin' | 'vendor' | 'customer');
+        return;
+      }
+
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const signInWithEmail = async (email: string, password: string) => {
     setError(null);
     setLoading(true);
+    localStorage.removeItem('urbanbasket_demo_role');
     try {
       const res = await authClient.signIn.email({
         email,
@@ -141,8 +178,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (authToken) {
           setToken(authToken);
           localStorage.setItem('urbanbasket_session_token', authToken);
-          const p = await fetchCurrentProfile(authToken);
-          setProfile(p);
         }
         if (res.data.user) {
           setUser({
@@ -151,6 +186,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name: res.data.user.name,
             image: res.data.user.image,
           });
+
+          // Immediate fallback profile
+          const initialProfile: UserProfile = {
+            id: res.data.user.id,
+            supabaseUserId: res.data.user.id,
+            email: res.data.user.email,
+            name: res.data.user.name || res.data.user.email.split('@')[0],
+            role: 'CUSTOMER',
+          };
+          setProfile(initialProfile);
+
+          if (authToken) {
+            const p = await fetchCurrentProfile(authToken);
+            if (p) setProfile(p);
+          }
         }
       }
     } catch (err: unknown) {
@@ -165,6 +215,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUpWithEmail = async (email: string, password: string, name: string) => {
     setError(null);
     setLoading(true);
+    localStorage.removeItem('urbanbasket_demo_role');
     try {
       const res = await authClient.signUp.email({
         email,
@@ -181,8 +232,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (authToken) {
           setToken(authToken);
           localStorage.setItem('urbanbasket_session_token', authToken);
-          const p = await fetchCurrentProfile(authToken);
-          setProfile(p);
         }
         if (res.data.user) {
           setUser({
@@ -191,6 +240,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name: res.data.user.name,
             image: res.data.user.image,
           });
+
+          const initialProfile: UserProfile = {
+            id: res.data.user.id,
+            supabaseUserId: res.data.user.id,
+            email: res.data.user.email,
+            name: res.data.user.name || res.data.user.email.split('@')[0],
+            role: 'CUSTOMER',
+          };
+          setProfile(initialProfile);
+
+          if (authToken) {
+            const p = await fetchCurrentProfile(authToken);
+            if (p) setProfile(p);
+          }
         }
       }
     } catch (err: unknown) {
@@ -204,6 +267,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithOAuth = async (provider: 'google') => {
     setError(null);
+    // Explicitly clear demo role so Google login takes effect on redirect
+    localStorage.removeItem('urbanbasket_demo_role');
     try {
       await authClient.signIn.social({
         provider,
