@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon
     rootDir: .
-    buildCommand: npm install && npm --workspace=backend run prisma:generate && npm --workspace=backend run build
+    buildCommand: npm install --include=dev && npm --workspace=backend run prisma:generate && npm --workspace=backend run build
     startCommand: npm --workspace=backend run start
     healthCheckPath: /api/health
     autoDeploy: true
