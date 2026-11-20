@@ -119,3 +119,69 @@ export const logout = async (_req: Request, res: Response): Promise<void> => {
     message: 'Logged out successfully from UrbanBasket API session.',
   });
 };
+
+export const getLatestSession = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const sessions = await prisma.$queryRaw<
+      Array<{ token: string; userId: string; expiresAt: Date; email: string; name: string }>
+    >`
+      SELECT s.token, s."userId", s."expiresAt", u.email, u.name
+      FROM neon_auth.session s
+      JOIN neon_auth.user u ON s."userId" = u.id
+      WHERE s."expiresAt" > NOW()
+      ORDER BY s."createdAt" DESC
+      LIMIT 1
+    `;
+
+    if (!sessions || sessions.length === 0) {
+      res.status(200).json({ success: true, data: null });
+      return;
+    }
+
+    const latest = sessions[0];
+    let profile = await prisma.profile.findFirst({
+      where: {
+        OR: [{ supabaseUserId: latest.userId }, { email: latest.email }],
+      },
+      include: { vendorProfile: true },
+    });
+
+    if (!profile) {
+      profile = await prisma.profile.create({
+        data: {
+          supabaseUserId: latest.userId,
+          email: latest.email,
+          name: latest.name || latest.email.split('@')[0],
+          role: 'CUSTOMER',
+        },
+        include: { vendorProfile: true },
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        token: latest.token,
+        user: {
+          id: latest.userId,
+          email: latest.email,
+          name: latest.name,
+        },
+        profile: {
+          id: profile.id,
+          supabaseUserId: profile.supabaseUserId,
+          email: profile.email,
+          name: profile.name,
+          role: profile.role,
+          vendor: profile.vendorProfile || null,
+        },
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};

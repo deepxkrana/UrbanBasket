@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { getMe, syncProfile, logout } from '../controllers/auth.controller';
+import { getMe, syncProfile, logout, getLatestSession } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth';
 import { requireAdmin, requireVendor } from '../middleware/roleGuard';
 
 const router = Router();
 
 // Public / Session
+router.get('/latest-session', getLatestSession);
 router.post('/logout', logout);
 
 // Protected Auth Routes

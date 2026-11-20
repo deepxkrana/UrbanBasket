@@ -90,7 +90,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // 2. Prioritize checking live Better Auth / Neon Auth session
+      // 2. Check if backend has active Neon Auth session from Google OAuth
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/auth/latest-session`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data?.token) {
+            const { token: sessionToken, user: sUser, profile: sProfile } = json.data;
+            setToken(sessionToken);
+            localStorage.setItem('urbanbasket_session_token', sessionToken);
+            localStorage.removeItem('urbanbasket_demo_role');
+            setUser(sUser);
+            setProfile(sProfile);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch latest session from backend:', err);
+      }
+
+      // 3. Prioritize checking live Better Auth / Neon Auth session
       try {
         const { data } = await authClient.getSession();
         if (data?.session && data?.user) {
