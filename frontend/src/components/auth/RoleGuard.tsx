@@ -13,27 +13,27 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children, on
 
   if (loading) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center text-slate-400 text-sm">
-        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-3"></div>
-        Checking role authorization...
+      <div className="py-20 flex flex-col items-center justify-center text-[#6b7280] text-xs">
+        <div className="w-7 h-7 rounded-full border-2 border-[#171717] border-t-transparent animate-spin mb-3"></div>
+        <span>Checking role authorization...</span>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-slate-900 border border-slate-800 rounded-2xl text-center">
-        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 mx-auto flex items-center justify-center mb-4">
-          <LogIn className="w-6 h-6" />
+      <div className="max-w-md mx-auto my-16 p-8 bg-white border border-[#e5e7eb] rounded-2xl text-center shadow-xs">
+        <div className="w-12 h-12 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-[#171717] mx-auto flex items-center justify-center mb-4">
+          <LogIn className="w-5 h-5" />
         </div>
-        <h3 className="text-lg font-bold text-white mb-2">Authentication Required</h3>
-        <p className="text-xs text-slate-400 mb-6">
+        <h3 className="text-base font-semibold text-[#171717] mb-2">Authentication Required</h3>
+        <p className="text-xs text-[#6b7280] mb-6">
           You must be logged in to view this section. Please sign in or use one of the 1-click evaluation accounts.
         </p>
         {onOpenAuth && (
           <button
             onClick={onOpenAuth}
-            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold text-xs transition"
+            className="px-5 py-2.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs cursor-pointer"
           >
             Sign In / Switch Role
           </button>
@@ -44,22 +44,22 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children, on
 
   if (!allowedRoles.includes(profile.role)) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-slate-900 border border-red-500/20 rounded-2xl text-center">
-        <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-400 mx-auto flex items-center justify-center mb-4">
-          <ShieldAlert className="w-6 h-6" />
+      <div className="max-w-md mx-auto my-16 p-8 bg-white border border-rose-200 rounded-2xl text-center shadow-xs">
+        <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-[#dc2626] mx-auto flex items-center justify-center mb-4">
+          <ShieldAlert className="w-5 h-5" />
         </div>
-        <h3 className="text-lg font-bold text-white mb-2">Access Denied (403 Forbidden)</h3>
-        <p className="text-xs text-slate-400 mb-2">
-          Your current account role is <span className="font-semibold text-slate-200">[{profile.role}]</span>.
+        <h3 className="text-base font-semibold text-[#171717] mb-2">Access Denied (403 Forbidden)</h3>
+        <p className="text-xs text-[#6b7280] mb-2">
+          Your current account role is <span className="font-semibold text-[#171717]">[{profile.role}]</span>.
         </p>
-        <p className="text-xs text-slate-400 mb-6">
+        <p className="text-xs text-[#6b7280] mb-6">
           This area requires one of the following permissions:{' '}
-          <span className="font-medium text-emerald-400">{allowedRoles.join(', ')}</span>.
+          <span className="font-medium text-[#171717]">{allowedRoles.join(', ')}</span>.
         </p>
         {onOpenAuth && (
           <button
             onClick={onOpenAuth}
-            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition"
+            className="px-5 py-2.5 rounded-full bg-white hover:bg-[#fafafa] text-[#171717] border border-[#e5e7eb] font-medium text-xs transition cursor-pointer"
           >
             Switch to an Authorized Demo Account
           </button>

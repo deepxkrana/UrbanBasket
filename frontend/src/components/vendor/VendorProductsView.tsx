@@ -76,7 +76,7 @@ export const VendorProductsView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6">
       <CreateProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -88,33 +88,33 @@ export const VendorProductsView: React.FC = () => {
       />
 
       {/* Store Status Header */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 rounded-lg bg-white border border-[#e5e7eb] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center font-bold">
-            <Store className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-lg bg-[#fafafa] border border-[#e5e7eb] text-[#171717] flex items-center justify-center font-bold">
+            <Store className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-lg font-semibold text-[#171717]">
                 {profile?.vendor?.storeName || 'Merchant Storefront'}
               </h2>
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider ${
                   vendorStatus === 'APPROVED'
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    ? 'bg-[#fafafa] text-[#171717] border border-[#e5e7eb]'
                     : vendorStatus === 'PENDING'
-                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                    : 'bg-rose-50 text-[#dc2626] border border-rose-200'
                 }`}
               >
-                {vendorStatus === 'APPROVED' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                {vendorStatus === 'PENDING' && <Clock className="w-3 h-3 mr-1" />}
-                {vendorStatus === 'REJECTED' && <AlertCircle className="w-3 h-3 mr-1" />}
+                {vendorStatus === 'APPROVED' && <CheckCircle2 className="w-3 h-3 mr-1 text-[#171717]" />}
+                {vendorStatus === 'PENDING' && <Clock className="w-3 h-3 mr-1 text-amber-600" />}
+                {vendorStatus === 'REJECTED' && <AlertCircle className="w-3 h-3 mr-1 text-[#dc2626]" />}
                 {vendorStatus}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Slug: <span className="font-mono text-slate-300">/{profile?.vendor?.storeSlug || 'store'}</span> &bull; Platform Commission:{' '}
+            <p className="text-xs text-[#6b7280] mt-0.5">
+              Slug: <span className="font-mono text-[#171717]">/{profile?.vendor?.storeSlug || 'store'}</span> &bull; Platform Commission:{' '}
               {Math.round((profile?.vendor?.commissionRate || 0.1) * 100)}%
             </p>
           </div>
@@ -122,7 +122,7 @@ export const VendorProductsView: React.FC = () => {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-slate-950 font-semibold text-xs transition shadow-lg shadow-teal-500/20"
+          className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Product</span>
@@ -130,42 +130,42 @@ export const VendorProductsView: React.FC = () => {
       </div>
 
       {actionMessage && (
-        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+        <div className="p-3 rounded-lg bg-[#fafafa] border border-[#e5e7eb] text-[#171717] text-xs">
           {actionMessage}
         </div>
       )}
 
       {/* Product List */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-sm font-semibold text-slate-200">
-            <Package className="w-4 h-4 text-teal-400" />
+      <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden shadow-xs">
+        <div className="px-6 py-4 border-b border-[#e5e7eb] flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-xs font-semibold text-[#171717]">
+            <Package className="w-4 h-4 text-[#6b7280]" />
             <span>Product Inventory ({products.length})</span>
           </div>
         </div>
 
         {loading ? (
-          <div className="py-16 text-center text-slate-400 text-sm">
-            <div className="w-6 h-6 rounded-full border-2 border-teal-500 border-t-transparent animate-spin mx-auto mb-2"></div>
+          <div className="py-16 text-center text-[#6b7280] text-xs">
+            <div className="w-6 h-6 rounded-full border-2 border-[#171717] border-t-transparent animate-spin mx-auto mb-2"></div>
             Loading inventory items...
           </div>
         ) : products.length === 0 ? (
-          <div className="py-16 text-center text-slate-400">
-            <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-            <p className="text-sm font-medium text-slate-300">No products added yet</p>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+          <div className="py-16 text-center text-[#6b7280]">
+            <Package className="w-8 h-8 text-[#9ca3af] mx-auto mb-2" />
+            <p className="text-xs font-semibold text-[#171717]">No products added yet</p>
+            <p className="text-xs text-[#6b7280] mt-1 max-w-xs mx-auto">
               Click &quot;Add Product&quot; to publish or draft your first marketplace listing.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-800">
+          <div className="divide-y divide-[#e5e7eb]">
             {products.map((p) => (
               <div
                 key={p.id}
-                className="p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-800/40 transition"
+                className="p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#fafafa] transition"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-lg bg-[#fafafa] border border-[#e5e7eb] overflow-hidden flex-shrink-0 flex items-center justify-center">
                     {p.images[0]?.publicUrl ? (
                       <img
                         src={p.images[0].publicUrl}
@@ -173,31 +173,31 @@ export const VendorProductsView: React.FC = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <Package className="w-6 h-6 text-slate-600" />
+                      <Package className="w-6 h-6 text-[#9ca3af]" />
                     )}
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h4 className="font-bold text-white text-sm">{p.name}</h4>
+                      <h4 className="font-medium text-[#171717] text-sm">{p.name}</h4>
                       <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full uppercase tracking-wider ${
                           p.status === 'PUBLISHED'
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            : 'bg-slate-800 text-slate-400 border border-slate-700'
+                            ? 'bg-[#fafafa] text-[#171717] border border-[#e5e7eb]'
+                            : 'bg-white text-[#6b7280] border border-[#e5e7eb]'
                         }`}
                       >
                         {p.status}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-1 max-w-lg">
+                    <p className="text-xs text-[#6b7280] mt-0.5 line-clamp-1 max-w-lg">
                       {p.description}
                     </p>
-                    <div className="flex items-center space-x-3 text-xs text-slate-400 mt-1.5 font-mono">
+                    <div className="flex items-center space-x-3 text-xs text-[#6b7280] mt-1.5 font-mono">
                       <span>Category: {p.category.name}</span>
                       <span>&bull;</span>
-                      <span className="text-emerald-400 font-semibold">${Number(p.price).toFixed(2)}</span>
+                      <span className="text-[#171717] font-semibold">${Number(p.price).toFixed(2)}</span>
                       <span>&bull;</span>
-                      <span className={p.stock > 0 ? 'text-slate-300' : 'text-red-400 font-bold'}>
+                      <span className={p.stock > 0 ? 'text-[#6b7280]' : 'text-[#dc2626] font-semibold'}>
                         Stock: {p.stock}
                       </span>
                     </div>
@@ -207,7 +207,7 @@ export const VendorProductsView: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleDelete(p.id)}
-                    className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition"
+                    className="p-2 rounded-full text-[#6b7280] hover:text-[#dc2626] hover:bg-rose-50 border border-transparent hover:border-rose-100 transition cursor-pointer"
                     title="Delete product"
                   >
                     <Trash2 className="w-4 h-4" />

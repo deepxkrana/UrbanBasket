@@ -94,29 +94,29 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-lg bg-white border border-[#e5e7eb] rounded-2xl p-6 md:p-8 shadow-xl text-[#171717] max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+          className="absolute top-5 right-5 p-1.5 text-[#6b7280] hover:text-[#171717] rounded-full hover:bg-[#fafafa] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-xl font-bold tracking-tight text-white mb-1">Add New Product</h2>
-        <p className="text-xs text-slate-400 mb-6">
+        <h2 className="text-xl font-semibold tracking-tight text-[#171717] mb-1">Add New Product</h2>
+        <p className="text-xs text-[#6b7280] mb-6">
           Publish or draft a new item for your merchant storefront.
         </p>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+          <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-[#dc2626] text-xs">
             {error}
           </div>
         )}
 
         {!isApproved && (
-          <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start space-x-2">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start space-x-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600" />
             <div>
               <span className="font-semibold block">Store Pending Approval</span>
               You can draft products now, but products can only be marked as{' '}
@@ -127,24 +127,24 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Product Name</label>
+            <label className="block text-xs font-medium text-[#171717] mb-1">Product Name</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Ergonomic Bluetooth Mouse"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Category</label>
+              <label className="block text-xs font-medium text-[#171717] mb-1">Category</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-teal-500 transition"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] focus:outline-none focus:border-[#171717] transition cursor-pointer"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -155,12 +155,12 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Status</label>
+              <label className="block text-xs font-medium text-[#171717] mb-1">Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'DRAFT' | 'PUBLISHED')}
                 disabled={!isApproved}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-teal-500 transition disabled:opacity-50"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] focus:outline-none focus:border-[#171717] transition disabled:opacity-50 cursor-pointer"
               >
                 <option value="DRAFT">Draft</option>
                 <option value="PUBLISHED" disabled={!isApproved}>
@@ -172,7 +172,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Price ($ USD)</label>
+              <label className="block text-xs font-medium text-[#171717] mb-1">Price ($ USD)</label>
               <input
                 type="number"
                 step="0.01"
@@ -181,12 +181,12 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="49.99"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Available Stock</label>
+              <label className="block text-xs font-medium text-[#171717] mb-1">Available Stock</label>
               <input
                 type="number"
                 min="0"
@@ -194,31 +194,31 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
                 placeholder="25"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Product Description</label>
+            <label className="block text-xs font-medium text-[#171717] mb-1">Product Description</label>
             <textarea
               rows={3}
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Highlight key specs, features, dimensions, and warranty info..."
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Image URL (Public CDN / Unsplash)</label>
+            <label className="block text-xs font-medium text-[#171717] mb-1">Image URL (Public CDN / Unsplash)</label>
             <input
               type="url"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://images.unsplash.com/photo-..."
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition"
             />
           </div>
 
@@ -226,7 +226,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-teal-500 hover:bg-teal-600 text-slate-950 font-semibold text-sm transition shadow-lg shadow-teal-500/20 disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full py-2.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>{loading ? 'Creating Product...' : 'Save Product'}</span>

@@ -13,7 +13,7 @@ import { CartDrawer } from './components/cart/CartDrawer';
 import { CheckoutModal } from './components/cart/CheckoutModal';
 import { CustomerOrdersView } from './components/orders/CustomerOrdersView';
 import { VendorOrdersView } from './components/vendor/VendorOrdersView';
-import { CheckCircle2, Store, ArrowRight } from 'lucide-react';
+import { ArrowRight, Store } from 'lucide-react';
 
 const MainView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('catalog');
@@ -23,7 +23,7 @@ const MainView: React.FC = () => {
   const { profile } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+    <div className="min-h-screen bg-[#fafafa] text-[#171717] flex flex-col justify-between selection:bg-[#171717] selection:text-white">
       <Navbar
         onOpenAuth={() => setIsAuthOpen(true)}
         activeTab={activeTab}
@@ -51,25 +51,25 @@ const MainView: React.FC = () => {
         }}
       />
 
-      <main className="max-w-6xl mx-auto px-6 py-8 flex-1 w-full space-y-8">
+      <main className="max-w-6xl mx-auto px-6 py-10 flex-1 w-full space-y-12">
         {/* HERO BANNER (Shown across Catalog) */}
         {activeTab === 'catalog' && (
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-950 border border-emerald-500/20 p-8 md:p-10 shadow-2xl">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 mb-3">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Phase 7: Payments, Webhooks & Order Lifecycle Active
+          <div className="relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] p-8 md:p-12 shadow-xs">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-xs font-medium text-[#171717] mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#171717]"></span>
+                <span>Multi-Vendor Commerce Platform</span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-                Shop Verified Multi-Vendor Goods
+              <h1 className="text-3xl md:text-5xl font-normal tracking-tighter text-[#171717] leading-[1.12] mb-4">
+                Curated goods, directly from independent merchants.
               </h1>
-              <p className="text-slate-300 text-xs md:text-sm leading-relaxed mb-6">
-                Atomic checkout with test Stripe / Razorpay payments, signed webhooks, split commission payouts, and step-by-step merchant order fulfillment.
+              <p className="text-[#6b7280] text-sm md:text-base leading-relaxed mb-8 max-w-2xl">
+                Atomic multitenant ordering, split merchant payouts, verified buyer reviews, and real-time ledger auditing built on modern infrastructure.
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => setIsAuthOpen(true)}
-                  className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20"
+                  className="inline-flex items-center space-x-2 px-5 h-10 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs"
                 >
                   <span>Switch Role / Test Accounts</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -78,10 +78,10 @@ const MainView: React.FC = () => {
                 {profile?.role === 'CUSTOMER' && !profile.vendor && (
                   <button
                     onClick={() => setIsOnboardOpen(true)}
-                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold text-xs transition"
+                    className="inline-flex items-center space-x-2 px-5 h-10 rounded-full bg-white hover:bg-[#fafafa] text-[#171717] border border-[#e5e7eb] font-medium text-xs transition"
                   >
-                    <Store className="w-3.5 h-3.5" />
-                    <span>Become a Vendor</span>
+                    <Store className="w-3.5 h-3.5 text-[#6b7280]" />
+                    <span>Become a Merchant</span>
                   </button>
                 )}
               </div>
@@ -128,8 +128,17 @@ const MainView: React.FC = () => {
         )}
       </main>
 
-      <footer className="border-t border-slate-900 bg-slate-950 px-6 py-6 text-center text-xs text-slate-500">
-        UrbanBasket &bull; Multi-Vendor E-Commerce Platform &bull; Phase 9 Real-Time Analytics & Monitoring Active
+      <footer className="border-t border-[#e5e7eb] bg-white px-6 py-6 text-xs text-[#6b7280]">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-[#171717]">UrbanBasket</span>
+            <span>&bull;</span>
+            <span>Multi-Vendor Marketplace</span>
+          </div>
+          <div className="text-[#9ca3af]">
+            Atomic Transactions &bull; Neon Auth &bull; Real-Time Analytics
+          </div>
+        </div>
       </footer>
     </div>
   );

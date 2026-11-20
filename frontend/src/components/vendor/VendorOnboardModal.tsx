@@ -53,71 +53,71 @@ export const VendorOnboardModal: React.FC<VendorOnboardModalProps> = ({ isOpen, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-md bg-white border border-[#e5e7eb] rounded-2xl p-6 md:p-8 shadow-xl text-[#171717]">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+          className="absolute top-5 right-5 p-1.5 text-[#6b7280] hover:text-[#171717] rounded-full hover:bg-[#fafafa] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {submitted ? (
           <div className="py-8 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-[#171717] mx-auto flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">Application Received!</h3>
-            <p className="text-xs text-slate-400 max-w-xs mx-auto">
-              Your store application has been registered in <span className="text-amber-400 font-semibold">PENDING</span> status. An administrator will review your application shortly.
+            <h3 className="text-lg font-semibold text-[#171717]">Application Received</h3>
+            <p className="text-xs text-[#6b7280] max-w-xs mx-auto">
+              Your store application has been registered in <span className="text-[#171717] font-semibold">PENDING</span> status. An administrator will review your application shortly.
             </p>
           </div>
         ) : (
           <>
             <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 mx-auto flex items-center justify-center mb-3">
-                <Store className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-[#171717] mx-auto flex items-center justify-center mb-3">
+                <Store className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">Open Your Merchant Store</h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <h2 className="text-xl font-semibold tracking-tight text-[#171717]">Open Your Merchant Store</h2>
+              <p className="text-xs text-[#6b7280] mt-1">
                 Reach thousands of buyers on UrbanBasket. Standard platform fee: 10%.
               </p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+              <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-[#dc2626] text-xs">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Store / Brand Name</label>
+                <label className="block text-xs font-medium text-[#171717] mb-1">Store / Brand Name</label>
                 <input
                   type="text"
                   required
                   value={storeName}
                   onChange={(e) => setStoreName(e.target.value)}
                   placeholder="e.g. EcoCraft Essentials"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Store Description</label>
+                <label className="block text-xs font-medium text-[#171717] mb-1">Store Description</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe your products, specialty, and source materials..."
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition resize-none"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#e5e7eb] rounded-lg text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition resize-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 rounded-lg bg-teal-500 hover:bg-teal-600 text-slate-950 font-semibold text-sm transition shadow-lg shadow-teal-500/20 disabled:opacity-50 flex items-center justify-center space-x-2"
+                className="w-full py-2.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{loading ? 'Submitting Application...' : 'Apply for Vendor Account'}</span>

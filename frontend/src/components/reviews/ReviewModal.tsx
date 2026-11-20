@@ -73,55 +73,55 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-lg bg-white border border-[#e5e7eb] rounded-2xl p-6 md:p-8 shadow-xl text-[#171717]">
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition"
+          className="absolute top-5 right-5 p-2 text-[#6b7280] hover:text-[#171717] rounded-full hover:bg-[#fafafa] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {success ? (
           <div className="py-8 text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
-              <CheckCircle className="w-7 h-7" />
+            <div className="w-12 h-12 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-[#171717] mx-auto flex items-center justify-center">
+              <CheckCircle className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">Review Submitted!</h3>
-            <p className="text-xs text-slate-400 max-w-xs mx-auto">
+            <h3 className="text-lg font-semibold text-[#171717]">Review Submitted!</h3>
+            <p className="text-xs text-[#6b7280] max-w-xs mx-auto">
               Thank you for sharing your feedback. Your verified purchase review will appear after moderation.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-[#6b7280]">
                 Verified Purchase
               </span>
-              <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">Rate & Review Product</h3>
+              <h3 className="text-xl font-semibold text-[#171717] tracking-tight mt-0.5">Rate & Review Product</h3>
             </div>
 
             {/* Product thumbnail */}
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800/60">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-[#fafafa] border border-[#e5e7eb]">
               {productImage ? (
                 <img
                   src={productImage}
                   alt={productName}
-                  className="w-12 h-12 rounded-xl object-cover border border-slate-800 flex-shrink-0"
+                  className="w-12 h-12 rounded-md object-cover border border-[#e5e7eb] flex-shrink-0"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-500 font-bold text-xs">
+                <div className="w-12 h-12 rounded-md bg-white border border-[#e5e7eb] flex items-center justify-center flex-shrink-0 text-[#9ca3af] font-semibold text-xs">
                   UB
                 </div>
               )}
               <div className="truncate">
-                <p className="font-semibold text-white text-xs truncate">{productName}</p>
-                <p className="text-[11px] text-slate-400">Delivered order verified</p>
+                <p className="font-medium text-[#171717] text-xs truncate">{productName}</p>
+                <p className="text-[11px] text-[#6b7280]">Delivered order verified</p>
               </div>
             </div>
 
             {error && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-[#dc2626] text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -129,7 +129,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
             {/* Star Rating Picker */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Overall Rating</label>
+              <label className="text-xs font-medium text-[#171717]">Overall Rating</label>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => {
                   const isFilled = (hoverRating || rating) >= star;
@@ -140,19 +140,19 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                       onClick={() => setRating(star)}
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(0)}
-                      className="p-1 focus:outline-none transition transform hover:scale-110"
+                      className="p-1 focus:outline-none transition cursor-pointer"
                     >
                       <Star
-                        className={`w-7 h-7 ${
+                        className={`w-6 h-6 ${
                           isFilled
                             ? 'text-amber-400 fill-amber-400'
-                            : 'text-slate-700 hover:text-slate-600'
+                            : 'text-[#e5e7eb] hover:text-[#d1d5db]'
                         }`}
                       />
                     </button>
                   );
                 })}
-                <span className="ml-2 text-xs font-bold text-slate-300">
+                <span className="ml-2 text-xs font-medium text-[#6b7280]">
                   {rating === 5 ? 'Excellent (5/5)' : `${rating} of 5 Stars`}
                 </span>
               </div>
@@ -160,14 +160,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
             {/* Comment */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Your Feedback</label>
+              <label className="text-xs font-medium text-[#171717]">Your Feedback</label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="What did you like or dislike about this product? How was the quality?"
                 rows={4}
                 required
-                className="w-full rounded-2xl bg-slate-950 border border-slate-800 p-3 text-xs text-white focus:outline-none focus:border-emerald-500 transition resize-none"
+                className="w-full rounded-lg bg-white border border-[#e5e7eb] p-3 text-xs text-[#171717] focus:outline-none focus:border-[#171717] transition resize-none placeholder:text-[#9ca3af]"
               />
             </div>
 
@@ -175,14 +175,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium transition"
+                className="px-4 py-2 rounded-full border border-[#e5e7eb] bg-white text-[#6b7280] hover:text-[#171717] text-xs font-medium transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs transition shadow-md shadow-emerald-500/20 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 {loading ? 'Submitting...' : 'Submit Review'}
               </button>

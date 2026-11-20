@@ -238,27 +238,27 @@ export const AdminApprovalsView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6">
       {/* Navigation Tabs Header */}
-      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 rounded-lg bg-white border border-[#e5e7eb] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-lg bg-[#fafafa] border border-[#e5e7eb] text-[#171717] flex items-center justify-center font-bold">
+            <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Platform Governance Portal</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <h2 className="text-xl font-normal text-[#171717] tracking-tight">Platform Governance Portal</h2>
+            <p className="text-xs text-[#6b7280] mt-0.5">
               Admin controls for vendor approvals, review moderation, and platform coupon management.
             </p>
           </div>
         </div>
 
         {/* Section Tabs */}
-        <div className="flex items-center space-x-1 p-1 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+        <div className="flex items-center space-x-1 p-1 bg-[#fafafa] border border-[#e5e7eb] rounded-full text-xs">
           <button
             onClick={() => setCurrentTab('VENDORS')}
-            className={`px-3.5 py-2 rounded-lg transition font-semibold flex items-center gap-1.5 ${
-              currentTab === 'VENDORS' ? 'bg-purple-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-full transition font-medium flex items-center gap-1.5 cursor-pointer ${
+              currentTab === 'VENDORS' ? 'bg-[#171717] text-white' : 'text-[#6b7280] hover:text-[#171717]'
             }`}
           >
             <Store className="w-3.5 h-3.5" />
@@ -266,8 +266,8 @@ export const AdminApprovalsView: React.FC = () => {
           </button>
           <button
             onClick={() => setCurrentTab('REVIEWS')}
-            className={`px-3.5 py-2 rounded-lg transition font-semibold flex items-center gap-1.5 ${
-              currentTab === 'REVIEWS' ? 'bg-purple-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-full transition font-medium flex items-center gap-1.5 cursor-pointer ${
+              currentTab === 'REVIEWS' ? 'bg-[#171717] text-white' : 'text-[#6b7280] hover:text-[#171717]'
             }`}
           >
             <Star className="w-3.5 h-3.5" />
@@ -275,8 +275,8 @@ export const AdminApprovalsView: React.FC = () => {
           </button>
           <button
             onClick={() => setCurrentTab('COUPONS')}
-            className={`px-3.5 py-2 rounded-lg transition font-semibold flex items-center gap-1.5 ${
-              currentTab === 'COUPONS' ? 'bg-purple-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-full transition font-medium flex items-center gap-1.5 cursor-pointer ${
+              currentTab === 'COUPONS' ? 'bg-[#171717] text-white' : 'text-[#6b7280] hover:text-[#171717]'
             }`}
           >
             <Tag className="w-3.5 h-3.5" />
@@ -286,14 +286,14 @@ export const AdminApprovalsView: React.FC = () => {
       </div>
 
       {actionMessage && (
-        <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+        <div className="p-3.5 rounded-lg bg-[#fafafa] border border-[#e5e7eb] text-[#171717] text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-[#171717] flex-shrink-0" />
           <span>{actionMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-[#dc2626] text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -305,16 +305,16 @@ export const AdminApprovalsView: React.FC = () => {
       {currentTab === 'VENDORS' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-medium text-[#6b7280] uppercase tracking-wider">
               Merchant Applications
             </span>
-            <div className="flex items-center space-x-1 p-1 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+            <div className="flex items-center space-x-1 p-1 bg-[#fafafa] border border-[#e5e7eb] rounded-full text-xs">
               {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setVendorFilter(f)}
-                  className={`px-3 py-1 rounded-lg transition font-medium ${
-                    vendorFilter === f ? 'bg-purple-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                  className={`px-3 py-1 rounded-full transition font-medium cursor-pointer ${
+                    vendorFilter === f ? 'bg-[#171717] text-white' : 'text-[#6b7280] hover:text-[#171717]'
                   }`}
                 >
                   {f}
@@ -323,46 +323,46 @@ export const AdminApprovalsView: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden shadow-xs">
             {loading ? (
-              <div className="py-16 text-center text-slate-400 text-sm">
-                <div className="w-6 h-6 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-2" />
+              <div className="py-16 text-center text-[#6b7280] text-xs">
+                <div className="w-6 h-6 rounded-full border-2 border-[#171717] border-t-transparent animate-spin mx-auto mb-2" />
                 Loading vendor records...
               </div>
             ) : vendors.length === 0 ? (
-              <div className="py-16 text-center text-slate-400">
-                <Store className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-slate-300">No applications found in this category</p>
+              <div className="py-16 text-center text-[#6b7280]">
+                <Store className="w-8 h-8 text-[#9ca3af] mx-auto mb-2" />
+                <p className="text-xs font-semibold text-[#171717]">No applications found in this category</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-800/80">
+              <div className="divide-y divide-[#e5e7eb]">
                 {vendors.map((v) => (
                   <div
                     key={v.id}
-                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-800/40 transition"
+                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#fafafa] transition"
                   >
                     <div>
                       <div className="flex items-center space-x-3">
-                        <h3 className="font-bold text-white text-base">{v.storeName}</h3>
+                        <h3 className="font-medium text-[#171717] text-base">{v.storeName}</h3>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
                             v.status === 'APPROVED'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              ? 'bg-[#fafafa] text-[#171717] border border-[#e5e7eb]'
                               : v.status === 'PENDING'
-                              ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : 'bg-rose-50 text-[#dc2626] border border-rose-200'
                           }`}
                         >
-                          {v.status === 'APPROVED' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                          {v.status === 'PENDING' && <Clock className="w-3 h-3 mr-1" />}
-                          {v.status === 'REJECTED' && <XCircle className="w-3 h-3 mr-1" />}
+                          {v.status === 'APPROVED' && <CheckCircle2 className="w-3 h-3 mr-1 text-[#171717]" />}
+                          {v.status === 'PENDING' && <Clock className="w-3 h-3 mr-1 text-amber-600" />}
+                          {v.status === 'REJECTED' && <XCircle className="w-3 h-3 mr-1 text-[#dc2626]" />}
                           {v.status}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1 max-w-xl">
+                      <p className="text-xs text-[#6b7280] mt-1 max-w-xl">
                         {v.description || 'No description provided.'}
                       </p>
-                      <div className="flex items-center space-x-4 text-xs text-slate-500 mt-2 font-mono">
+                      <div className="flex items-center space-x-4 text-xs text-[#6b7280] mt-2 font-mono">
                         <span>Merchant: {v.user.name} ({v.user.email})</span>
                         <span>&bull;</span>
                         <span>Products: {v._count.products}</span>
@@ -375,7 +375,7 @@ export const AdminApprovalsView: React.FC = () => {
                       {v.status !== 'APPROVED' && (
                         <button
                           onClick={() => handleUpdateVendorStatus(v.id, 'APPROVED')}
-                          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold transition"
+                          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-[#171717] hover:bg-black text-white text-xs font-medium transition shadow-xs cursor-pointer"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Approve</span>
@@ -384,7 +384,7 @@ export const AdminApprovalsView: React.FC = () => {
                       {v.status !== 'REJECTED' && (
                         <button
                           onClick={() => handleUpdateVendorStatus(v.id, 'REJECTED')}
-                          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold transition"
+                          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-rose-50 text-[#dc2626] border border-[#e5e7eb] text-xs font-medium transition cursor-pointer"
                         >
                           <XCircle className="w-3.5 h-3.5" />
                           <span>Reject</span>
@@ -405,16 +405,16 @@ export const AdminApprovalsView: React.FC = () => {
       {currentTab === 'REVIEWS' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-medium text-[#6b7280] uppercase tracking-wider">
               Customer Purchase Reviews
             </span>
-            <div className="flex items-center space-x-1 p-1 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+            <div className="flex items-center space-x-1 p-1 bg-[#fafafa] border border-[#e5e7eb] rounded-full text-xs">
               {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setReviewFilter(f)}
-                  className={`px-3 py-1 rounded-lg transition font-medium ${
-                    reviewFilter === f ? 'bg-purple-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                  className={`px-3 py-1 rounded-full transition font-medium cursor-pointer ${
+                    reviewFilter === f ? 'bg-[#171717] text-white' : 'text-[#6b7280] hover:text-[#171717]'
                   }`}
                 >
                   {f}
@@ -423,23 +423,23 @@ export const AdminApprovalsView: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden shadow-xs">
             {loading ? (
-              <div className="py-16 text-center text-slate-400 text-sm">
-                <div className="w-6 h-6 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-2" />
+              <div className="py-16 text-center text-[#6b7280] text-xs">
+                <div className="w-6 h-6 rounded-full border-2 border-[#171717] border-t-transparent animate-spin mx-auto mb-2" />
                 Loading customer reviews...
               </div>
             ) : reviews.length === 0 ? (
-              <div className="py-16 text-center text-slate-400">
-                <Star className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-slate-300">No reviews found matching this filter</p>
+              <div className="py-16 text-center text-[#6b7280]">
+                <Star className="w-8 h-8 text-[#9ca3af] mx-auto mb-2" />
+                <p className="text-xs font-semibold text-[#171717]">No reviews found matching this filter</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-800/80">
+              <div className="divide-y divide-[#e5e7eb]">
                 {reviews.map((r) => (
                   <div
                     key={r.id}
-                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-800/40 transition"
+                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#fafafa] transition"
                   >
                     <div className="space-y-1.5 max-w-xl">
                       <div className="flex items-center gap-2">
@@ -448,26 +448,26 @@ export const AdminApprovalsView: React.FC = () => {
                             <Star
                               key={s}
                               className={`w-3.5 h-3.5 ${
-                                s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-700'
+                                s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-[#e5e7eb]'
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="font-semibold text-white text-xs">{r.product.name}</span>
+                        <span className="font-medium text-[#171717] text-xs">{r.product.name}</span>
                         <span
-                          className={`inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-semibold uppercase ${
+                          className={`inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-medium uppercase border border-[#e5e7eb] ${
                             r.status === 'APPROVED'
-                              ? 'bg-emerald-500/10 text-emerald-400'
+                              ? 'bg-[#fafafa] text-[#171717]'
                               : r.status === 'PENDING'
-                              ? 'bg-amber-500/10 text-amber-400'
-                              : 'bg-rose-500/10 text-rose-400'
+                              ? 'bg-amber-50 text-amber-700'
+                              : 'bg-rose-50 text-[#dc2626]'
                           }`}
                         >
                           {r.status}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 italic">"{r.comment}"</p>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <p className="text-xs text-[#6b7280] italic">"{r.comment}"</p>
+                      <div className="text-[11px] text-[#9ca3af] font-mono">
                         By {r.customer.name} ({r.customer.email}) • {new Date(r.createdAt).toLocaleDateString()}
                       </div>
                     </div>
@@ -476,7 +476,7 @@ export const AdminApprovalsView: React.FC = () => {
                       {r.status !== 'APPROVED' && (
                         <button
                           onClick={() => handleModerateReview(r.id, 'APPROVED')}
-                          className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold transition"
+                          className="px-3.5 py-1.5 rounded-full bg-[#171717] hover:bg-black text-white text-xs font-medium transition shadow-xs cursor-pointer"
                         >
                           Approve
                         </button>
@@ -484,7 +484,7 @@ export const AdminApprovalsView: React.FC = () => {
                       {r.status !== 'REJECTED' && (
                         <button
                           onClick={() => handleModerateReview(r.id, 'REJECTED')}
-                          className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-semibold transition"
+                          className="px-3.5 py-1.5 rounded-full bg-white hover:bg-rose-50 text-[#dc2626] border border-[#e5e7eb] text-xs font-medium transition cursor-pointer"
                         >
                           Reject
                         </button>
@@ -504,12 +504,12 @@ export const AdminApprovalsView: React.FC = () => {
       {currentTab === 'COUPONS' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-medium text-[#6b7280] uppercase tracking-wider">
               Platform Discount Coupons
             </span>
             <button
               onClick={() => setIsCreatingCoupon(!isCreatingCoupon)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-slate-950 text-xs font-bold transition shadow-md shadow-purple-500/20"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#171717] hover:bg-black text-white text-xs font-medium transition shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{isCreatingCoupon ? 'Cancel' : 'Create New Coupon'}</span>
@@ -520,28 +520,28 @@ export const AdminApprovalsView: React.FC = () => {
           {isCreatingCoupon && (
             <form
               onSubmit={handleCreateCoupon}
-              className="p-6 rounded-3xl bg-slate-900 border border-purple-500/30 space-y-4 animate-in fade-in"
+              className="p-6 rounded-lg bg-[#fafafa] border border-[#e5e7eb] space-y-4 animate-in fade-in"
             >
-              <h3 className="text-sm font-bold text-white">Create Marketplace Coupon</h3>
+              <h3 className="text-sm font-semibold text-[#171717]">Create Marketplace Coupon</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Coupon Code</label>
+                  <label className="text-[#171717] font-medium block mb-1">Coupon Code</label>
                   <input
                     type="text"
                     value={newCouponCode}
                     onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
                     placeholder="e.g. FLASH50"
                     required
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white font-mono uppercase focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] font-mono uppercase focus:outline-none focus:border-[#171717]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Discount Type</label>
+                  <label className="text-[#171717] font-medium block mb-1">Discount Type</label>
                   <select
                     value={newCouponType}
                     onChange={(e) => setNewCouponType(e.target.value as 'PERCENTAGE' | 'FIXED')}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] focus:outline-none focus:border-[#171717] cursor-pointer"
                   >
                     <option value="PERCENTAGE">Percentage (%)</option>
                     <option value="FIXED">Fixed Amount ($)</option>
@@ -549,7 +549,7 @@ export const AdminApprovalsView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Discount Value</label>
+                  <label className="text-[#171717] font-medium block mb-1">Discount Value</label>
                   <input
                     type="number"
                     min="1"
@@ -557,53 +557,53 @@ export const AdminApprovalsView: React.FC = () => {
                     value={newCouponValue}
                     onChange={(e) => setNewCouponValue(Number(e.target.value))}
                     required
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] focus:outline-none focus:border-[#171717] font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Minimum Subtotal ($)</label>
+                  <label className="text-[#171717] font-medium block mb-1">Minimum Subtotal ($)</label>
                   <input
                     type="number"
                     min="0"
                     value={newCouponMin}
                     onChange={(e) => setNewCouponMin(Number(e.target.value))}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] focus:outline-none focus:border-[#171717] font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Max Discount Cap ($)</label>
+                  <label className="text-[#171717] font-medium block mb-1">Max Discount Cap ($)</label>
                   <input
                     type="number"
                     min="1"
                     value={newCouponMaxDisc}
                     onChange={(e) => setNewCouponMaxDisc(Number(e.target.value))}
                     placeholder="Optional for %"
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] focus:outline-none focus:border-[#171717] font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Usage Limit</label>
+                  <label className="text-[#171717] font-medium block mb-1">Usage Limit</label>
                   <input
                     type="number"
                     min="1"
                     value={newCouponLimit}
                     onChange={(e) => setNewCouponLimit(Number(e.target.value))}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] focus:outline-none focus:border-[#171717] font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Validity (Days)</label>
+                  <label className="text-[#171717] font-medium block mb-1">Validity (Days)</label>
                   <input
                     type="number"
                     min="1"
                     max="365"
                     value={newCouponDays}
                     onChange={(e) => setNewCouponDays(Number(e.target.value))}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full rounded-lg bg-white border border-[#e5e7eb] p-2.5 text-[#171717] focus:outline-none focus:border-[#171717] font-mono"
                   />
                 </div>
               </div>
@@ -612,13 +612,13 @@ export const AdminApprovalsView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCreatingCoupon(false)}
-                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-semibold"
+                  className="px-4 py-2 rounded-full border border-[#e5e7eb] bg-white text-[#6b7280] hover:text-[#171717] text-xs font-medium cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-slate-950 font-bold text-xs shadow-md transition"
+                  className="px-5 py-2 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs shadow-xs transition cursor-pointer"
                 >
                   Publish Coupon
                 </button>
@@ -626,47 +626,47 @@ export const AdminApprovalsView: React.FC = () => {
             </form>
           )}
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden shadow-xs">
             {loading ? (
-              <div className="py-16 text-center text-slate-400 text-sm">
-                <div className="w-6 h-6 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-2" />
+              <div className="py-16 text-center text-[#6b7280] text-xs">
+                <div className="w-6 h-6 rounded-full border-2 border-[#171717] border-t-transparent animate-spin mx-auto mb-2" />
                 Loading coupons...
               </div>
             ) : coupons.length === 0 ? (
-              <div className="py-16 text-center text-slate-400">
-                <Tag className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-slate-300">No coupons active on platform</p>
+              <div className="py-16 text-center text-[#6b7280]">
+                <Tag className="w-8 h-8 text-[#9ca3af] mx-auto mb-2" />
+                <p className="text-xs font-semibold text-[#171717]">No coupons active on platform</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-800/80">
+              <div className="divide-y divide-[#e5e7eb]">
                 {coupons.map((c) => (
                   <div
                     key={c.id}
-                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-800/40 transition"
+                    className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#fafafa] transition"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-base text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-lg border border-purple-500/20">
+                        <span className="font-mono font-semibold text-sm text-[#171717] bg-[#fafafa] px-2.5 py-0.5 rounded-md border border-[#e5e7eb]">
                           {c.code}
                         </span>
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          className={`text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#e5e7eb] ${
                             c.isActive
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-slate-800 text-slate-400'
+                              ? 'bg-[#fafafa] text-[#171717]'
+                              : 'bg-white text-[#6b7280]'
                           }`}
                         >
                           {c.isActive ? 'ACTIVE' : 'INACTIVE'}
                         </span>
                       </div>
 
-                      <div className="text-xs text-slate-300">
+                      <div className="text-xs text-[#6b7280]">
                         {c.type === 'PERCENTAGE' ? `${c.value}% discount` : `$${c.value} flat discount`}
                         {c.minimumAmount > 0 && ` on orders over $${c.minimumAmount}`}
                         {c.maximumDiscount && ` (max $${c.maximumDiscount})`}
                       </div>
 
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-[#9ca3af] font-mono">
                         Redeemed: {c.usedCount} {c.usageLimit ? `/ ${c.usageLimit} max` : 'times (unlimited)'} •
                         Expires: {new Date(c.expiresAt).toLocaleDateString()}
                       </div>
@@ -675,7 +675,7 @@ export const AdminApprovalsView: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleDeleteCoupon(c.id)}
-                        className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs transition"
+                        className="p-2 rounded-full text-[#6b7280] hover:text-[#dc2626] hover:bg-rose-50 border border-transparent hover:border-rose-100 text-xs transition cursor-pointer"
                         title="Delete or deactivate coupon"
                       >
                         <Trash2 className="w-4 h-4" />

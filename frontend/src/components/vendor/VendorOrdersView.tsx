@@ -116,21 +116,21 @@ export const VendorOrdersView: React.FC = () => {
           target: 'PACKED',
           label: 'Pack Order',
           icon: Package,
-          className: 'bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold',
+          className: 'bg-[#171717] hover:bg-black text-white font-medium',
         };
       case 'PACKED':
         return {
           target: 'SHIPPED',
           label: 'Ship Order',
           icon: Truck,
-          className: 'bg-indigo-500 hover:bg-indigo-600 text-white font-bold',
+          className: 'bg-[#171717] hover:bg-black text-white font-medium',
         };
       case 'SHIPPED':
         return {
           target: 'DELIVERED',
           label: 'Mark Delivered',
           icon: CheckCircle,
-          className: 'bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold',
+          className: 'bg-[#171717] hover:bg-black text-white font-medium',
         };
       default:
         return null;
@@ -141,37 +141,37 @@ export const VendorOrdersView: React.FC = () => {
     switch (status) {
       case 'PLACED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            <Clock className="w-3 h-3" /> Placed
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fafafa] text-[#171717] border border-[#e5e7eb]">
+            <Clock className="w-3 h-3 text-[#6b7280]" /> Placed
           </span>
         );
       case 'PACKED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            <Package className="w-3 h-3" /> Packed
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fafafa] text-[#171717] border border-[#e5e7eb]">
+            <Package className="w-3 h-3 text-[#6b7280]" /> Packed
           </span>
         );
       case 'SHIPPED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <Truck className="w-3 h-3" /> Shipped
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fafafa] text-[#171717] border border-[#e5e7eb]">
+            <Truck className="w-3 h-3 text-[#6b7280]" /> Shipped
           </span>
         );
       case 'DELIVERED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <CheckCircle className="w-3 h-3" /> Delivered
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fafafa] text-[#171717] border border-[#e5e7eb]">
+            <CheckCircle className="w-3 h-3 text-[#171717]" /> Delivered
           </span>
         );
       case 'CANCELLED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-[#dc2626] border border-rose-200">
             <XCircle className="w-3 h-3" /> Cancelled
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fafafa] text-[#6b7280] border border-[#e5e7eb]">
             {status}
           </span>
         );
@@ -182,37 +182,37 @@ export const VendorOrdersView: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Vendor Order Fulfillment</h2>
-          <p className="text-sm text-slate-400">
+          <h2 className="text-2xl font-normal tracking-tight text-[#171717]">Store Order Fulfillment</h2>
+          <p className="text-xs text-[#6b7280]">
             Fulfill store orders, manage packaging and dispatch, and track your split commission payouts.
           </p>
         </div>
         <button
           onClick={fetchVendorOrders}
           disabled={loading}
-          className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold transition"
+          className="px-4 py-2 rounded-full bg-white border border-[#e5e7eb] text-[#171717] hover:bg-[#fafafa] text-xs font-medium transition cursor-pointer shadow-xs"
         >
           {loading ? 'Refreshing...' : 'Refresh Orders'}
         </button>
       </div>
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-[#dc2626] text-xs flex items-center gap-3">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {loading && orders.length === 0 ? (
-        <div className="py-16 text-center text-slate-500">
-          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm">Loading store orders...</p>
+        <div className="py-16 text-center text-[#6b7280]">
+          <div className="w-7 h-7 border-2 border-[#171717] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs">Loading store orders...</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="py-16 text-center rounded-3xl bg-slate-900/50 border border-slate-800/80 p-8">
-          <Package className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-white mb-1">No Orders Assigned Yet</h3>
-          <p className="text-sm text-slate-400 max-w-sm mx-auto">
+        <div className="py-16 text-center rounded-lg bg-white border border-[#e5e7eb] p-8 shadow-xs">
+          <Package className="w-10 h-10 text-[#9ca3af] mx-auto mb-3" />
+          <h3 className="text-sm font-semibold text-[#171717] mb-1">No Orders Assigned Yet</h3>
+          <p className="text-xs text-[#6b7280] max-w-sm mx-auto">
             When customers purchase products listed by your store, they will appear here for packing and dispatch.
           </p>
         </div>
@@ -224,15 +224,15 @@ export const VendorOrdersView: React.FC = () => {
             return (
               <div
                 key={order.id}
-                className="rounded-3xl bg-slate-900 border border-slate-800/80 p-5 md:p-6 transition hover:border-slate-700 space-y-4"
+                className="rounded-lg bg-white border border-[#e5e7eb] p-5 md:p-6 transition hover:border-[#171717] space-y-4 shadow-xs"
               >
                 {/* Header row */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#e5e7eb]">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-slate-400">Order #{order.id.slice(0, 8)}</span>
-                      <span className="text-xs text-slate-500">•</span>
-                      <span className="text-xs text-slate-400">
+                      <span className="font-mono text-xs text-[#6b7280]">Order #{order.id.slice(0, 8)}</span>
+                      <span className="text-xs text-[#e5e7eb]">•</span>
+                      <span className="text-xs text-[#6b7280]">
                         {new Date(order.createdAt).toLocaleDateString(undefined, {
                           month: 'short',
                           day: 'numeric',
@@ -242,7 +242,7 @@ export const VendorOrdersView: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(order.orderStatus)}
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fafafa] text-[#171717] border border-[#e5e7eb]">
                         Payment: {order.paymentStatus}
                       </span>
                     </div>
@@ -250,32 +250,32 @@ export const VendorOrdersView: React.FC = () => {
 
                   {/* Financial payout banner */}
                   <div className="text-right">
-                    <div className="text-xs text-slate-400">Your Net Payout:</div>
-                    <div className="text-xl font-black text-emerald-400">
+                    <div className="text-xs text-[#6b7280]">Your Net Payout:</div>
+                    <div className="text-base font-semibold font-mono text-[#171717]">
                       ${order.vendorPayoutTotal.toFixed(2)}
                     </div>
-                    <div className="text-[11px] text-slate-500">
+                    <div className="text-[11px] text-[#9ca3af] font-mono">
                       Subtotal: ${order.vendorSubtotal.toFixed(2)}
                     </div>
                   </div>
                 </div>
 
                 {/* Customer and shipping details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-slate-950/40 p-3.5 rounded-2xl border border-slate-800/40">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-[#fafafa] p-3.5 rounded-lg border border-[#e5e7eb]">
                   <div className="flex items-start gap-2.5">
-                    <User className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                    <User className="w-4 h-4 text-[#6b7280] mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="font-semibold text-slate-200">{order.customer.name}</div>
-                      <div className="text-slate-500">{order.customer.email}</div>
+                      <div className="font-medium text-[#171717]">{order.customer.name}</div>
+                      <div className="text-[#6b7280]">{order.customer.email}</div>
                     </div>
                   </div>
 
                   {order.shippingAddress && (
                     <div className="flex items-start gap-2.5">
-                      <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                      <div className="text-slate-300">
+                      <MapPin className="w-4 h-4 text-[#6b7280] mt-0.5 flex-shrink-0" />
+                      <div className="text-[#171717]">
                         <div>{order.shippingAddress.line1}</div>
-                        <div className="text-slate-500">
+                        <div className="text-[#6b7280]">
                           {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}
                         </div>
                       </div>
@@ -288,31 +288,31 @@ export const VendorOrdersView: React.FC = () => {
                   {order.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between gap-4 p-3 rounded-2xl bg-slate-950/50 border border-slate-800/50 text-xs"
+                      className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[#fafafa] border border-[#e5e7eb] text-xs"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {item.image ? (
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="w-10 h-10 rounded-xl object-cover border border-slate-800 flex-shrink-0"
+                            className="w-10 h-10 rounded-md object-cover border border-[#e5e7eb] flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0">
-                            <Package className="w-5 h-5 text-slate-500" />
+                          <div className="w-10 h-10 rounded-md bg-white border border-[#e5e7eb] flex items-center justify-center flex-shrink-0">
+                            <Package className="w-5 h-5 text-[#9ca3af]" />
                           </div>
                         )}
                         <div className="truncate">
-                          <p className="font-semibold text-white truncate">{item.name}</p>
-                          <p className="text-slate-400 text-[11px]">
-                            Qty: <strong className="text-slate-200">{item.quantity}</strong> × ${item.unitPrice.toFixed(2)}
+                          <p className="font-medium text-[#171717] truncate">{item.name}</p>
+                          <p className="text-[#6b7280] text-[11px]">
+                            Qty: <strong className="text-[#171717] font-medium">{item.quantity}</strong> × ${item.unitPrice.toFixed(2)}
                           </p>
                         </div>
                       </div>
 
                       <div className="text-right flex-shrink-0">
-                        <div className="font-bold text-slate-200">${item.subtotal.toFixed(2)}</div>
-                        <div className="text-[11px] text-emerald-400 font-medium">
+                        <div className="font-medium font-mono text-[#171717]">${item.subtotal.toFixed(2)}</div>
+                        <div className="text-[11px] text-[#6b7280] font-mono">
                           Payout: ${item.vendorPayout.toFixed(2)}
                         </div>
                       </div>
@@ -326,7 +326,7 @@ export const VendorOrdersView: React.FC = () => {
                     <button
                       onClick={() => handleUpdateStatus(order.id, nextAction.target)}
                       disabled={actionLoading === order.id}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition shadow-md ${nextAction.className}`}
+                      className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs transition shadow-xs cursor-pointer ${nextAction.className}`}
                     >
                       <nextAction.icon className="w-4 h-4" />
                       <span>

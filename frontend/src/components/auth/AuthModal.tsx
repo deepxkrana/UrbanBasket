@@ -50,20 +50,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-md bg-white border border-[#e5e7eb] rounded-2xl p-6 md:p-8 shadow-xl text-[#171717]">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+          className="absolute top-5 right-5 p-1.5 text-[#6b7280] hover:text-[#171717] rounded-full hover:bg-[#fafafa] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
+          <h2 className="text-xl font-semibold tracking-tight text-[#171717]">
             {isRegister ? 'Create Your Account' : 'Welcome Back'}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[#6b7280] mt-1">
             {isRegister
               ? 'Join UrbanBasket as a customer to browse and purchase'
               : 'Sign in with your email or social accounts'}
@@ -71,40 +71,40 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* 1-Click Demo Evaluation Roles */}
-        <div className="mb-6 p-3 rounded-xl bg-slate-950/80 border border-emerald-500/20">
-          <span className="text-[10px] font-semibold tracking-wider text-emerald-400 uppercase block text-center mb-2">
+        <div className="mb-6 p-3 rounded-lg bg-[#fafafa] border border-[#e5e7eb]">
+          <span className="text-[10px] font-medium tracking-wider text-[#6b7280] uppercase block text-center mb-2">
             1-Click Quick Demo Evaluation
           </span>
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => handleDemoLogin('customer')}
-              className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-950/20 transition text-xs"
+              className="flex flex-col items-center justify-center p-2 rounded-lg bg-white border border-[#e5e7eb] hover:border-[#171717] transition text-xs cursor-pointer shadow-xs group"
             >
-              <ShoppingBag className="w-4 h-4 text-emerald-400 mb-1" />
-              <span className="text-[11px] font-medium text-slate-200">Customer</span>
+              <ShoppingBag className="w-4 h-4 text-[#6b7280] group-hover:text-[#171717] mb-1" />
+              <span className="text-[11px] font-medium text-[#171717]">Customer</span>
             </button>
             <button
               type="button"
               onClick={() => handleDemoLogin('vendor')}
-              className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-950/20 transition text-xs"
+              className="flex flex-col items-center justify-center p-2 rounded-lg bg-white border border-[#e5e7eb] hover:border-[#171717] transition text-xs cursor-pointer shadow-xs group"
             >
-              <Store className="w-4 h-4 text-teal-400 mb-1" />
-              <span className="text-[11px] font-medium text-slate-200">Vendor</span>
+              <Store className="w-4 h-4 text-[#6b7280] group-hover:text-[#171717] mb-1" />
+              <span className="text-[11px] font-medium text-[#171717]">Vendor</span>
             </button>
             <button
               type="button"
               onClick={() => handleDemoLogin('admin')}
-              className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-950/20 transition text-xs"
+              className="flex flex-col items-center justify-center p-2 rounded-lg bg-white border border-[#e5e7eb] hover:border-[#171717] transition text-xs cursor-pointer shadow-xs group"
             >
-              <ShieldCheck className="w-4 h-4 text-purple-400 mb-1" />
-              <span className="text-[11px] font-medium text-slate-200">Admin</span>
+              <ShieldCheck className="w-4 h-4 text-[#6b7280] group-hover:text-[#171717] mb-1" />
+              <span className="text-[11px] font-medium text-[#171717]">Admin</span>
             </button>
           </div>
         </div>
 
         {authError && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+          <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-[#dc2626] text-xs">
             {authError}
           </div>
         )}
@@ -112,47 +112,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {isRegister && (
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+              <label className="block text-xs font-medium text-[#171717] mb-1">Full Name</label>
               <div className="relative">
-                <UserIcon className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                <UserIcon className="absolute left-3.5 top-3 w-4 h-4 text-[#9ca3af]" />
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+                  className="w-full pl-10 pr-3 py-2 bg-white border border-[#e5e7eb] rounded-full text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+            <label className="block text-xs font-medium text-[#171717] mb-1">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-[#9ca3af]" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+                className="w-full pl-10 pr-3 py-2 bg-white border border-[#e5e7eb] rounded-full text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Password</label>
+            <label className="block text-xs font-medium text-[#171717] mb-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+              <Lock className="absolute left-3.5 top-3 w-4 h-4 text-[#9ca3af]" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+                className="w-full pl-10 pr-3 py-2 bg-white border border-[#e5e7eb] rounded-full text-xs text-[#171717] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#171717] transition"
               />
             </div>
           </div>
@@ -160,18 +160,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold text-sm transition shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+            className="w-full py-2.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs transition shadow-xs disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Processing...' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
         {/* OAuth Buttons */}
-        <div className="mt-5 pt-5 border-t border-slate-800">
+        <div className="mt-5 pt-5 border-t border-[#e5e7eb]">
           <button
             type="button"
             onClick={() => signInWithOAuth('google')}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-slate-800 bg-slate-950 hover:bg-slate-800/80 text-xs font-medium text-slate-200 transition text-center"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border border-[#e5e7eb] bg-white hover:bg-[#fafafa] text-xs font-medium text-[#171717] transition text-center shadow-xs cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -191,7 +191,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
               />
             </svg>
-            Continue with Google
+            <span>Continue with Google</span>
           </button>
         </div>
 
@@ -202,7 +202,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               setIsRegister(!isRegister);
               setAuthError(null);
             }}
-            className="text-xs text-slate-400 hover:text-emerald-400 transition"
+            className="text-xs text-[#6b7280] hover:text-[#171717] transition cursor-pointer font-medium"
           >
             {isRegister
               ? 'Already have an account? Sign In'
