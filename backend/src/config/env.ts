@@ -9,6 +9,7 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default('http://localhost:5173'),
   DATABASE_URL: z.string().optional(),
   DIRECT_URL: z.string().optional(),
+  NEON_AUTH_URL: z.string().optional(),
   SUPABASE_URL: z.string().optional(),
   SUPABASE_JWT_SECRET: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),

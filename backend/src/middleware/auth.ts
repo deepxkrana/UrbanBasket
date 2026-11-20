@@ -63,6 +63,56 @@ export const authenticate = async (
       }
     }
 
+    // Check if token matches a live Neon Auth session in neon_auth.session
+    try {
+      const neonSessions = await prisma.$queryRaw<
+        Array<{ id: string; userId: string; expiresAt: Date; email: string; name: string }>
+      >`
+        SELECT s.id, s."userId", s."expiresAt", u.email, u.name
+        FROM neon_auth.session s
+        JOIN neon_auth.user u ON s."userId" = u.id
+        WHERE s.token = ${token} AND s."expiresAt" > NOW()
+        LIMIT 1
+      `;
+
+      if (neonSessions && neonSessions.length > 0) {
+        const neonUser = neonSessions[0];
+        let profile = await prisma.profile.findFirst({
+          where: {
+            OR: [
+              { supabaseUserId: neonUser.userId },
+              { email: neonUser.email },
+            ],
+          },
+          include: { vendorProfile: true },
+        });
+
+        if (!profile) {
+          profile = await prisma.profile.create({
+            data: {
+              supabaseUserId: neonUser.userId,
+              email: neonUser.email,
+              name: neonUser.name || neonUser.email.split('@')[0],
+              role: 'CUSTOMER',
+            },
+            include: { vendorProfile: true },
+          });
+        }
+
+        req.user = {
+          id: profile.id,
+          supabaseUserId: profile.supabaseUserId,
+          email: profile.email,
+          name: profile.name,
+          role: profile.role,
+          vendorProfileId: profile.vendorProfile?.id,
+        };
+        return next();
+      }
+    } catch {
+      // Fall through to JWT verification if neon_auth schema is not present (e.g. in mock tests)
+    }
+
     // Verify JWT cryptographic signature
     if (env.SUPABASE_JWT_SECRET) {
       try {

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { authClient } from '../lib/auth-client';
 
 export type UserRole = 'CUSTOMER' | 'VENDOR' | 'ADMIN';
 
@@ -22,8 +21,15 @@ export interface UserProfile {
   vendor?: VendorProfile | null;
 }
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string | null;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   profile: UserProfile | null;
   token: string | null;
   loading: boolean;
@@ -39,7 +45,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,29 +53,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getApiBaseUrl = () => {
     return import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-  };
-
-  const syncBackendProfile = async (authToken: string, nameHint?: string): Promise<UserProfile | null> => {
-    try {
-      const res = await fetch(`${getApiBaseUrl()}/auth/sync-profile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ name: nameHint }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to synchronize profile with backend');
-      }
-
-      const json = await res.json();
-      return json.data;
-    } catch (err) {
-      console.error('Error syncing profile with backend API:', err);
-      return null;
-    }
   };
 
   const fetchCurrentProfile = async (authToken: string): Promise<UserProfile | null> => {
@@ -96,51 +79,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // 2. Listen to Supabase Auth state changes
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleSession(session);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const handleSession = async (session: Session | null) => {
-    if (session?.user && session?.access_token) {
-      setUser(session.user);
-      setToken(session.access_token);
-      const name = session.user.user_metadata?.name || session.user.email?.split('@')[0];
-      const synced = await syncBackendProfile(session.access_token, name);
-      setProfile(synced);
-    } else {
-      setUser(null);
-      setToken(null);
-      setProfile(null);
+    // 2. Check for stored session token
+    const storedToken = localStorage.getItem('urbanbasket_session_token');
+    if (storedToken) {
+      setToken(storedToken);
+      fetchCurrentProfile(storedToken).then((p) => {
+        if (p) {
+          setProfile(p);
+          setUser({ id: p.supabaseUserId, email: p.email, name: p.name });
+        } else {
+          localStorage.removeItem('urbanbasket_session_token');
+          setToken(null);
+        }
+        setLoading(false);
+      });
+      return;
     }
-    setLoading(false);
-  };
+
+    // 3. Check live Neon Auth session via Better Auth client
+    authClient
+      .getSession()
+      .then(({ data }) => {
+        if (data?.session && data?.user) {
+          const sessionToken = data.session.token;
+          setToken(sessionToken);
+          localStorage.setItem('urbanbasket_session_token', sessionToken);
+          setUser({
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            image: data.user.image,
+          });
+          fetchCurrentProfile(sessionToken).then((p) => {
+            setProfile(p);
+            setLoading(false);
+          });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const signInWithEmail = async (email: string, password: string) => {
     setError(null);
     setLoading(true);
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const res = await authClient.signIn.email({
         email,
         password,
       });
-      if (authError) throw authError;
-      if (data.session) {
-        await handleSession(data.session);
+
+      if (res.error) {
+        throw new Error(res.error.message || 'Login failed');
+      }
+
+      if (res.data) {
+        const authToken = (res.data as any).token || (res.data as any).session?.token;
+        if (authToken) {
+          setToken(authToken);
+          localStorage.setItem('urbanbasket_session_token', authToken);
+          const p = await fetchCurrentProfile(authToken);
+          setProfile(p);
+        }
+        if (res.data.user) {
+          setUser({
+            id: res.data.user.id,
+            email: res.data.user.email,
+            name: res.data.user.name,
+            image: res.data.user.image,
+          });
+        }
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      const msg = err instanceof Error ? err.message : 'Login failed';
+      setError(msg);
       throw err;
     } finally {
       setLoading(false);
@@ -151,19 +166,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     setLoading(true);
     try {
-      const { data, error: authError } = await supabase.auth.signUp({
+      const res = await authClient.signUp.email({
         email,
         password,
-        options: {
-          data: { name },
-        },
+        name,
       });
-      if (authError) throw authError;
-      if (data.session) {
-        await handleSession(data.session);
+
+      if (res.error) {
+        throw new Error(res.error.message || 'Registration failed');
+      }
+
+      if (res.data) {
+        const authToken = (res.data as any).token || (res.data as any).session?.token;
+        if (authToken) {
+          setToken(authToken);
+          localStorage.setItem('urbanbasket_session_token', authToken);
+          const p = await fetchCurrentProfile(authToken);
+          setProfile(p);
+        }
+        if (res.data.user) {
+          setUser({
+            id: res.data.user.id,
+            email: res.data.user.email,
+            name: res.data.user.name,
+            image: res.data.user.image,
+          });
+        }
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Sign up failed');
+      const msg = err instanceof Error ? err.message : 'Registration failed';
+      setError(msg);
       throw err;
     } finally {
       setLoading(false);
@@ -173,15 +205,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signInWithOAuth = async (provider: 'google' | 'github') => {
     setError(null);
     try {
-      const { error: authError } = await supabase.auth.signInWithOAuth({
+      await authClient.signIn.social({
         provider,
-        options: {
-          redirectTo: window.location.origin,
-        },
+        callbackURL: window.location.origin,
       });
-      if (authError) throw authError;
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'OAuth sign in failed');
+      const msg = err instanceof Error ? err.message : 'OAuth sign in failed';
+      setError(msg);
       throw err;
     }
   };
@@ -200,13 +230,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser({
           id: profileData.supabaseUserId,
           email: profileData.email,
-          app_metadata: {},
-          user_metadata: { name: profileData.name },
-          aud: 'authenticated',
-          created_at: new Date().toISOString(),
-        } as User);
+          name: profileData.name,
+        });
       } else {
-        // Fallback demo mock if backend database is cold
         const mockMap: Record<string, UserProfile> = {
           admin: {
             id: 'demo-admin-id',
@@ -248,7 +274,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     localStorage.removeItem('urbanbasket_demo_role');
-    await supabase.auth.signOut();
+    localStorage.removeItem('urbanbasket_session_token');
+    try {
+      await authClient.signOut();
+    } catch {
+      // Ignored if session already invalidated
+    }
     setUser(null);
     setProfile(null);
     setToken(null);
