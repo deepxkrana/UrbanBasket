@@ -8,35 +8,59 @@ on:
 
 jobs:
   backend-checks:
-    name: Backend Lint, Build & Tests
+    name: Backend (Lint, Prisma, Build & Tests)
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgrespassword@localhost:5432/urbanbasket?schema=public
+      DIRECT_URL: postgresql://postgres:postgrespassword@localhost:5432/urbanbasket?schema=public
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-      - name: Install root & backend dependencies
-        run: npm ci --workspace=backend
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Generate Prisma Client
         run: npm --workspace=backend run prisma:generate
-      - name: Build Backend
+
+      - name: Lint Backend
+        run: npm --workspace=backend run lint
+
+      - name: Build Backend TypeScript
         run: npm --workspace=backend run build
+
       - name: Run Backend Tests
         run: npm --workspace=backend test
 
   frontend-checks:
-    name: Frontend Lint & Build
+    name: Frontend (Lint, Tests & Build)
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: http://localhost:5050/api/v1
+      VITE_NEON_AUTH_URL: https://ep-shiny-bonus-bi8xa84c.neonauth.c-5.ap-southeast-1.aws.neon.tech/neondb/auth
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-      - name: Install root & frontend dependencies
-        run: npm ci --workspace=frontend
-      - name: Build Frontend
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Frontend
+        run: npm --workspace=frontend run lint
+
+      - name: Run Frontend Component Tests
+        run: npm --workspace=frontend test
+
+      - name: Build Frontend Application
         run: npm --workspace=frontend run build
