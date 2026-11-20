@@ -36,7 +36,7 @@ interface AuthContextType {
   error: string | null;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
-  signInWithOAuth: (provider: 'google' | 'github') => Promise<void>;
+  signInWithOAuth: (provider: 'google') => Promise<void>;
   switchDemoRole: (role: 'admin' | 'vendor' | 'customer') => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -202,7 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithOAuth = async (provider: 'google' | 'github') => {
+  const signInWithOAuth = async (provider: 'google') => {
     setError(null);
     try {
       await authClient.signIn.social({
