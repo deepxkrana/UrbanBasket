@@ -245,7 +245,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
             {!paymentSuccess ? (
               <div className="space-y-3 pt-2">
                 <p className="text-xs text-[#6b7280] max-w-sm mx-auto">
-                  Simulate instant test payment with Stripe / Razorpay webhook to decrement stock and initialize vendor commission payouts.
+                  Instant card payment verification via webhook to confirm your order and schedule merchant dispatch.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3">
                   <button
@@ -254,7 +254,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs uppercase tracking-wider transition shadow-xs cursor-pointer"
                   >
                     <CreditCard className="w-4 h-4" />
-                    <span>{paymentProcessing ? 'Processing Payment...' : 'Simulate Card Payment (Test Mode)'}</span>
+                    <span>{paymentProcessing ? 'Processing...' : 'Pay with Card (Instant Demo)'}</span>
                   </button>
                   <button
                     onClick={onClose}
@@ -267,7 +267,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
             ) : (
               <div className="space-y-3 pt-2">
                 <p className="text-xs text-[#171717] font-medium">
-                  ✓ Inventory updated atomically. Split commission payouts allocated for merchants.
+                  ✓ Payment settled. Your order has been placed with the merchants.
                 </p>
                 <button
                   onClick={onClose}
@@ -283,9 +283,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-xs font-medium text-[#171717] mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Step 1: Order Confirmation</span>
+                <span>Express Checkout</span>
               </div>
-              <h2 className="text-xl font-semibold text-[#171717] tracking-tight">Marketplace Checkout</h2>
+              <h2 className="text-xl font-semibold text-[#171717] tracking-tight">Delivery & Payment</h2>
             </div>
 
             {error && (
@@ -478,7 +478,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
               className="w-full py-3.5 rounded-full bg-[#171717] hover:bg-black text-white font-medium text-xs uppercase tracking-wider transition shadow-xs disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>{orderSubmitting ? 'Placing Order...' : 'Place Test-Mode Order'}</span>
+              <span>{orderSubmitting ? 'Placing Order...' : 'Place Order'}</span>
             </button>
           </div>
         )}

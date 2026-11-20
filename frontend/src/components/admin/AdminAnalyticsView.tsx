@@ -139,11 +139,11 @@ export const AdminAnalyticsView: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-xs font-medium text-[#171717] mb-2">
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>Platform Telemetry</span>
+            <span>Marketplace Analytics</span>
           </div>
-          <h2 className="text-2xl font-normal text-[#171717] tracking-tight">Platform Financials & Growth</h2>
+          <h2 className="text-2xl font-normal text-[#171717] tracking-tight">Executive Financials & Growth</h2>
           <p className="text-xs text-[#6b7280] mt-0.5">
-            Real-time ledger audit reconciling customer gross volume, platform commission, and merchant payouts.
+            Real-time ledger audit reconciling customer gross volume, platform commission, and merchant settlements.
           </p>
         </div>
 
@@ -152,7 +152,7 @@ export const AdminAnalyticsView: React.FC = () => {
           <div className="flex items-center gap-3 px-3.5 py-2 rounded-full bg-[#fafafa] border border-[#e5e7eb] text-xs font-mono">
             <div className="flex items-center gap-1.5 text-[#171717]">
               <span className="w-2 h-2 rounded-full bg-[#171717]" />
-              <span className="font-semibold">SYSTEM OK</span>
+              <span className="font-semibold">SERVICES ACTIVE</span>
             </div>
             <span className="text-[#e5e7eb]">|</span>
             <span className="text-[#6b7280]">Uptime: {formatUptime(health.uptime)}</span>

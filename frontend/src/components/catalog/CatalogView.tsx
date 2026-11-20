@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, Star, Store, Package, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, SlidersHorizontal, Star, Store, Package, RotateCcw, ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react';
 import { ProductDetailModal, DetailedProduct } from './ProductDetailModal';
 import { useCart } from '../../context/CartContext';
 
@@ -70,6 +70,7 @@ export const CatalogView: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null);
+  const [addingId, setAddingId] = useState<string | null>(null);
 
   // Fetch Categories on mount
   useEffect(() => {
@@ -143,6 +144,18 @@ export const CatalogView: React.FC = () => {
     setSortField('createdAt');
     setSortOrder('desc');
     setPage(1);
+  };
+
+  const handleQuickAdd = async (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    setAddingId(productId);
+    try {
+      await addToCart(productId, 1);
+      setTimeout(() => setAddingId(null), 1200);
+    } catch (err) {
+      console.warn('Failed to quick add:', err);
+      setAddingId(null);
+    }
   };
 
   return (
@@ -358,76 +371,106 @@ export const CatalogView: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {products.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => setSelectedProductSlug(p.slug)}
-                  className="group rounded-lg bg-white border border-[#e5e7eb] hover:border-[#171717] p-4 transition-all duration-150 cursor-pointer flex flex-col justify-between shadow-xs hover:shadow-sm"
-                >
-                  <div>
-                    {/* Image */}
-                    <div className="w-full aspect-square rounded-md bg-[#fafafa] overflow-hidden relative mb-3 border border-[#f3f4f6]">
-                      {p.images[0]?.publicUrl ? (
-                        <img
-                          src={p.images[0].publicUrl}
-                          alt={p.name}
-                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#9ca3af]">
-                          <Package className="w-8 h-8" />
-                        </div>
-                      )}
+              {products.map((p) => {
+                const isAdding = addingId === p.id;
+                const isLowStock = p.stock > 0 && p.stock <= 5;
 
-                      {/* Stock badge */}
-                      {p.stock === 0 && (
-                        <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#171717] text-white">
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => setSelectedProductSlug(p.slug)}
+                    className="group rounded-lg bg-white border border-[#e5e7eb] hover:border-[#171717] p-4 transition-all duration-150 cursor-pointer flex flex-col justify-between shadow-xs hover:shadow-sm relative"
+                  >
+                    <div>
+                      {/* Image */}
+                      <div className="w-full aspect-square rounded-md bg-[#fafafa] overflow-hidden relative mb-3 border border-[#f3f4f6]">
+                        {p.images[0]?.publicUrl ? (
+                          <img
+                            src={p.images[0].publicUrl}
+                            alt={p.name}
+                            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#9ca3af]">
+                            <Package className="w-8 h-8" />
+                          </div>
+                        )}
+
+                        {/* Stock badge */}
+                        {p.stock === 0 ? (
+                          <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#171717] text-white">
+                            Sold Out
+                          </span>
+                        ) : isLowStock ? (
+                          <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
+                            Only {p.stock} left
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {/* Metadata */}
+                      <div className="flex items-center justify-between text-[11px] text-[#6b7280] mb-1">
+                        <span className="font-medium text-[#171717] uppercase tracking-wide text-[10px]">
+                          {p.category.name}
+                        </span>
+                        <div className="flex items-center space-x-1">
+                          <Store className="w-3 h-3 text-[#6b7280]" />
+                          <span className="truncate max-w-[90px]">{p.vendor.storeName}</span>
+                        </div>
+                      </div>
+
+                      {/* Product Title */}
+                      <h3 className="font-medium text-[#171717] text-sm tracking-tight line-clamp-1 mb-1.5 group-hover:underline">
+                        {p.name}
+                      </h3>
+
+                      {/* Rating */}
+                      <div className="flex items-center space-x-1.5 mb-3">
+                        <div className="flex text-amber-500">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        </div>
+                        <span className="text-xs font-medium text-[#171717]">
+                          {Number(p.averageRating).toFixed(1)}
+                        </span>
+                        <span className="text-[11px] text-[#9ca3af]">
+                          ({p.reviewCount})
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Price & Quick Add */}
+                    <div className="pt-3 border-t border-[#e5e7eb] flex items-center justify-between">
+                      <span className="text-base font-semibold text-[#171717] font-mono">
+                        ${Number(p.price).toFixed(2)}
+                      </span>
+
+                      {p.stock > 0 ? (
+                        <button
+                          onClick={(e) => handleQuickAdd(e, p.id)}
+                          disabled={isAdding}
+                          className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium bg-[#171717] text-white hover:bg-black transition cursor-pointer shadow-xs"
+                        >
+                          {isAdding ? (
+                            <>
+                              <Check className="w-3 h-3" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-3 h-3" />
+                              <span>Add</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs font-medium text-[#9ca3af] px-2 py-1">
                           Sold Out
                         </span>
                       )}
                     </div>
-
-                    {/* Metadata */}
-                    <div className="flex items-center justify-between text-[11px] text-[#6b7280] mb-1">
-                      <span className="font-medium text-[#171717] uppercase tracking-wide text-[10px]">
-                        {p.category.name}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Store className="w-3 h-3 text-[#6b7280]" />
-                        <span className="truncate max-w-[90px]">{p.vendor.storeName}</span>
-                      </div>
-                    </div>
-
-                    {/* Product Title */}
-                    <h3 className="font-medium text-[#171717] text-sm tracking-tight line-clamp-1 mb-1.5 group-hover:underline">
-                      {p.name}
-                    </h3>
-
-                    {/* Rating */}
-                    <div className="flex items-center space-x-1.5 mb-3">
-                      <div className="flex text-amber-500">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      </div>
-                      <span className="text-xs font-medium text-[#171717]">
-                        {Number(p.averageRating).toFixed(1)}
-                      </span>
-                      <span className="text-[11px] text-[#9ca3af]">
-                        ({p.reviewCount})
-                      </span>
-                    </div>
                   </div>
-
-                  {/* Price & CTA */}
-                  <div className="pt-3 border-t border-[#e5e7eb] flex items-center justify-between">
-                    <span className="text-base font-semibold text-[#171717] font-mono">
-                      ${Number(p.price).toFixed(2)}
-                    </span>
-                    <span className="text-xs font-medium text-[#171717] bg-[#fafafa] border border-[#e5e7eb] px-3 py-1 rounded-full group-hover:bg-[#171717] group-hover:text-white transition">
-                      View Item
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

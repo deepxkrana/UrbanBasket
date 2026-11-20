@@ -382,7 +382,7 @@ export const CustomerOrdersView: React.FC = () => {
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#171717] hover:bg-black text-white text-xs font-medium transition shadow-xs cursor-pointer"
                       >
                         <CreditCard className="w-3.5 h-3.5" />
-                        <span>{actionLoading === order.id ? 'Processing...' : 'Pay Now (Test Mode)'}</span>
+                        <span>{actionLoading === order.id ? 'Processing...' : 'Pay Now'}</span>
                       </button>
                     )}
 
